@@ -44,17 +44,20 @@ export default function BrutalistDashboard() {
   useEffect(() => {
     const checkStagnant = () => {
       const STAGNANT_TIME = 5 * 60 * 1000; // 5 minutes
-      const lastActiveStr = localStorage.getItem('habitflow_last_active');
       const now = Date.now();
+      
+      const hasSeenLoader = sessionStorage.getItem('habitflow_has_seen_loader');
+      const lastActiveStr = localStorage.getItem('habitflow_last_active');
 
-      if (!lastActiveStr) {
+      if (!hasSeenLoader) {
+        // First time loading in this session
         setLoading(true);
-      } else {
+        sessionStorage.setItem('habitflow_has_seen_loader', 'true');
+      } else if (lastActiveStr) {
+        // Returning user, check if stagnant
         const lastActive = parseInt(lastActiveStr, 10);
         if (now - lastActive > STAGNANT_TIME) {
           setLoading(true);
-        } else {
-          setLoading(false);
         }
       }
     };
@@ -63,8 +66,9 @@ export default function BrutalistDashboard() {
     checkStagnant();
 
     // Check again when user refocuses tab
-    window.addEventListener('focus', checkStagnant);
-    return () => window.removeEventListener('focus', checkStagnant);
+    const onFocus = () => checkStagnant();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, []);
 
   // Calculate daily completion rate dynamically based on grid state

@@ -3,6 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb"
 import { MongoClient } from "mongodb"
 import { nextCookies } from "better-auth/next-js"
 import { emailOTP } from "better-auth/plugins"
+import { dash } from "@better-auth/infra"
 import nodemailer from "nodemailer"
 
 // Provide a fallback URI for Next.js build time when environment variables might be missing
@@ -22,6 +23,7 @@ const transporter = nodemailer.createTransport({
 export const auth = betterAuth({
   database: mongodbAdapter(db),
   plugins: [
+    dash(),
     nextCookies(),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {

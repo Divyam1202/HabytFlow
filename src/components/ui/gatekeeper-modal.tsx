@@ -7,7 +7,7 @@ import { X } from 'lucide-react'
 import { checkUsernameAvailability } from '@/actions/auth-actions'
 
 export function GatekeeperModal() {
-  const { showGatekeeper, setShowGatekeeper, onAuthSuccess } = useAuth()
+  const { showGatekeeper, setShowGatekeeper, onAuthSuccess, isAuthenticated } = useAuth()
   
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
@@ -150,17 +150,19 @@ export function GatekeeperModal() {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div 
         className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-        onClick={() => setShowGatekeeper(false)}
+        onClick={() => { if (isAuthenticated) setShowGatekeeper(false) }}
       />
       
       <div className="relative w-full max-w-md bg-black border border-zinc-800 p-8 shadow-2xl flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
         
-        <button 
-          onClick={() => setShowGatekeeper(false)}
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
-        >
-          <X size={20} />
-        </button>
+        {isAuthenticated && (
+          <button 
+            onClick={() => setShowGatekeeper(false)}
+            className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
+          >
+            <X size={20} />
+          </button>
+        )}
 
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-black uppercase tracking-tight text-white">

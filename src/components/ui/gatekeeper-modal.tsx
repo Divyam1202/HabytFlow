@@ -218,7 +218,7 @@ export function GatekeeperModal() {
                   type="text" 
                   required
                   value={username}
-                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                  onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
                   className={`w-full bg-zinc-950 border ${username.length >= 6 && isUsernameAvailable === false ? 'border-red-500 focus:border-red-500' : 'border-zinc-800 focus:border-white'} text-white p-3 text-sm focus:outline-none transition-colors`}
                   placeholder="Minimum 6 characters"
                 />

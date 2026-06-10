@@ -6,7 +6,13 @@ export async function checkUsernameAvailability(username: string): Promise<boole
   if (!username || username.length < 6) return false
   
   try {
-    const db = await connectToDatabase()
+    const mongoose = await connectToDatabase()
+    const db = mongoose.connection.db
+    if (!db) {
+      console.error('Database connection not established properly')
+      return false
+    }
+
     // Better Auth stores users in the 'user' collection
     const existingUser = await db.collection('user').findOne({ 
       username: { $regex: new RegExp(`^${username}$`, 'i') } 

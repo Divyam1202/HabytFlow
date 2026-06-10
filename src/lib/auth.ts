@@ -22,7 +22,10 @@ const transporter = nodemailer.createTransport({
 
 export const auth = betterAuth({
   database: mongodbAdapter(db),
-  trustedOrigins: process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : [],
+  trustedOrigins: [
+    "https://habit-flow-wheat.vercel.app", 
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : [])
+  ],
   plugins: [
     dash(),
     nextCookies(),

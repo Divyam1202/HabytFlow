@@ -53,6 +53,8 @@ export default function BrutalistDashboard() {
         const lastActive = parseInt(lastActiveStr, 10);
         if (now - lastActive > STAGNANT_TIME) {
           setLoading(true);
+        } else {
+          setLoading(false);
         }
       }
     };

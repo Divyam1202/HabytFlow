@@ -23,8 +23,6 @@ export function GatekeeperModal() {
   const [showOtpInput, setShowOtpInput] = useState(false)
   const [otp, setOtp] = useState('')
 
-  if (!showGatekeeper) return null
-
   useEffect(() => {
     if (isLogin || username.length < 6) {
       setIsUsernameAvailable(null)
@@ -86,11 +84,8 @@ export function GatekeeperModal() {
         if (password.length < 8) {
           throw new Error('Password must be at least 8 characters')
         }
-        if (username.length < 6) {
-          throw new Error('Username must be at least 6 characters')
-        }
-        if (isUsernameAvailable === false) {
-          throw new Error('Username is already taken')
+        if (username.length < 6 || isUsernameAvailable === false) {
+          return
         }
         
         const generatedUsername = username || email.split('@')[0]
@@ -103,16 +98,9 @@ export function GatekeeperModal() {
         
         if (error) throw error
         
-        // Send the OTP for email verification
-        const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
-          email,
-          type: "email-verification"
-        })
-
-        if (otpError) throw otpError
-
-        setSuccessMessage('Email has been sent, check OTP!')
-        setShowOtpInput(true)
+        // Auto sign-in complete (verification disabled)
+        setSuccessMessage('Account created successfully!')
+        onAuthSuccess()
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed.')
@@ -120,6 +108,8 @@ export function GatekeeperModal() {
       setLoading(false)
     }
   }
+
+  if (!showGatekeeper) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -248,8 +238,8 @@ export function GatekeeperModal() {
 
             <button 
               type="submit" 
-              disabled={loading}
-              className="w-full mt-2 bg-white text-black font-black uppercase tracking-widest py-3 text-xs hover:bg-zinc-200 transition-colors disabled:opacity-50"
+              disabled={loading || (!isLogin && (username.length < 6 || isUsernameAvailable === false))}
+              className="w-full mt-2 bg-white text-black font-black uppercase tracking-widest py-3 text-xs hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Processing...' : isLogin ? 'Authenticate' : 'Create Account'}
             </button>

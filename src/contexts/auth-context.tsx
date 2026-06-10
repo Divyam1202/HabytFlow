@@ -40,11 +40,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [pendingAction])
 
-  useEffect(() => {
-    if (!isPending && !isAuthenticated) {
-      setShowGatekeeper(true)
-    }
-  }, [isPending, isAuthenticated])
+  // useEffect(() => {
+  //   if (!isPending && !isAuthenticated) {
+  //     setShowGatekeeper(true)
+  //   }
+  // }, [isPending, isAuthenticated])
 
   return (
     <AuthContext.Provider value={{

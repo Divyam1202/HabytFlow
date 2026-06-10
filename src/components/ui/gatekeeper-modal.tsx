@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { authClient } from '@/lib/auth-client'
-import { X } from 'lucide-react'
+import { X, CheckCircle } from 'lucide-react'
 import { checkUsernameAvailability } from '@/actions/auth-actions'
 
 export function GatekeeperModal() {
@@ -22,6 +22,7 @@ export function GatekeeperModal() {
   const [successMessage, setSuccessMessage] = useState('')
   const [showOtpInput, setShowOtpInput] = useState(false)
   const [otp, setOtp] = useState('')
+  const [isAuthenticatedScreen, setIsAuthenticatedScreen] = useState(false)
 
   useEffect(() => {
     if (isLogin || username.length < 6) {
@@ -57,8 +58,11 @@ export function GatekeeperModal() {
 
       if (error) throw error
       
-      setSuccessMessage('OTP Verified successfully!')
-      onAuthSuccess()
+      setIsAuthenticatedScreen(true)
+      setTimeout(() => {
+        onAuthSuccess()
+        window.location.reload()
+      }, 1500)
     } catch (err: any) {
       setError(err.message || 'Invalid OTP.')
     } finally {
@@ -164,123 +168,139 @@ export function GatekeeperModal() {
           </button>
         )}
 
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black uppercase tracking-tight text-white">
-            {isLogin ? 'Access Restricted' : 'Join HabitFlow'}
-          </h2>
-          <p className="text-zinc-400 text-xs uppercase tracking-widest font-bold">
-            Authentication Required
-          </p>
-        </div>
-
-        {!showOtpInput && (
-          <div className="flex border-b border-zinc-800">
-            <button
-              className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${isLogin ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
-              onClick={() => { setIsLogin(true); setError(''); }}
-            >
-              Log In
-            </button>
-            <button
-              className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${!isLogin ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
-              onClick={() => { setIsLogin(false); setError(''); }}
-            >
-              Sign Up
-            </button>
-          </div>
-        )}
-
-        {error && (
-          <div className="p-3 bg-red-950 border border-red-900 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
-            {error}
-          </div>
-        )}
-
-        {successMessage && (
-          <div className="p-3 bg-green-950 border border-green-900 text-green-500 text-xs font-bold uppercase tracking-widest text-center">
-            {successMessage}
-          </div>
-        )}
-
-        {showOtpInput ? (
-          <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">6-Digit OTP</label>
-              <input 
-                type="text" 
-                required
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="000000"
-                className="w-full bg-zinc-950 border border-zinc-800 text-white p-3 text-center text-2xl tracking-[1em] focus:outline-none focus:border-white transition-colors font-mono"
-                maxLength={6}
-              />
+        {isAuthenticatedScreen ? (
+          <div className="flex flex-col items-center justify-center gap-6 py-8 animate-in fade-in zoom-in">
+            <CheckCircle size={64} className="text-green-500" />
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-black uppercase tracking-tight text-white">
+                Access Granted
+              </h2>
+              <p className="text-green-500 text-xs uppercase tracking-widest font-bold">
+                Authentication Successful
+              </p>
             </div>
-            <button 
-              type="submit" 
-              disabled={loading || otp.length < 6}
-              className="w-full mt-2 bg-white text-black font-black uppercase tracking-widest py-3 text-xs hover:bg-zinc-200 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Verifying...' : 'Verify OTP & Authenticate'}
-            </button>
-          </form>
+          </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Email</label>
-              <input 
-                type="email" 
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors"
-              />
+          <>
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-black uppercase tracking-tight text-white">
+                {isLogin ? 'Access Restricted' : 'Join HabitFlow'}
+              </h2>
+              <p className="text-zinc-400 text-xs uppercase tracking-widest font-bold">
+                Authentication Required
+              </p>
             </div>
 
-            {!isLogin && (
-              <div className="space-y-1">
-                <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Username</label>
-                  {username.length > 0 && username.length < 6 && (
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Too Short</span>
-                  )}
-                  {username.length >= 6 && (
-                    <span className={`text-[10px] font-bold uppercase tracking-widest ${checkingUsername ? 'text-yellow-500' : isUsernameAvailable ? 'text-green-500' : 'text-red-500'}`}>
-                      {checkingUsername ? 'Checking...' : isUsernameAvailable ? 'Available' : 'Not Available'}
-                    </span>
-                  )}
-                </div>
-                <input 
-                  type="text" 
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
-                  className={`w-full bg-zinc-950 border ${username.length >= 6 && isUsernameAvailable === false ? 'border-red-500 focus:border-red-500' : 'border-zinc-800 focus:border-white'} text-white p-3 text-sm focus:outline-none transition-colors`}
-                  placeholder="Minimum 6 characters"
-                />
+            {!showOtpInput && (
+              <div className="flex border-b border-zinc-800">
+                <button
+                  className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${isLogin ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
+                  onClick={() => { setIsLogin(true); setError(''); }}
+                >
+                  Log In
+                </button>
+                <button
+                  className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${!isLogin ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
+                  onClick={() => { setIsLogin(false); setError(''); }}
+                >
+                  Sign Up
+                </button>
               </div>
             )}
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Password</label>
-              <input 
-                type="password" 
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors tracking-widest"
-              />
-            </div>
+            {error && (
+              <div className="p-3 bg-red-950 border border-red-900 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
+                {error}
+              </div>
+            )}
 
-            <button 
-              type="submit" 
-              disabled={loading || (!isLogin && (username.length < 6 || isUsernameAvailable === false))}
-              className="w-full mt-2 bg-white text-black font-black uppercase tracking-widest py-3 text-xs hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Processing...' : isLogin ? 'Authenticate' : 'Create Account'}
-            </button>
-          </form>
+            {successMessage && (
+              <div className="p-3 bg-green-950 border border-green-900 text-green-500 text-xs font-bold uppercase tracking-widest text-center">
+                {successMessage}
+              </div>
+            )}
+
+            {showOtpInput ? (
+              <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">6-Digit OTP</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="000000"
+                    className="w-full bg-zinc-950 border border-zinc-800 text-white p-3 text-center text-2xl tracking-[1em] focus:outline-none focus:border-white transition-colors font-mono"
+                    maxLength={6}
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={loading || otp.length < 6}
+                  className="w-full mt-2 bg-white text-black font-black uppercase tracking-widest py-3 text-xs hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Verifying...' : 'Verify OTP & Authenticate'}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Email</label>
+                  <input 
+                    type="email" 
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors"
+                  />
+                </div>
+
+                {!isLogin && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Username</label>
+                      {username.length > 0 && username.length < 6 && (
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Too Short</span>
+                      )}
+                      {username.length >= 6 && (
+                        <span className={`text-[10px] font-bold uppercase tracking-widest ${checkingUsername ? 'text-yellow-500' : isUsernameAvailable ? 'text-green-500' : 'text-red-500'}`}>
+                          {checkingUsername ? 'Checking...' : isUsernameAvailable ? 'Available' : 'Not Available'}
+                        </span>
+                      )}
+                    </div>
+                    <input 
+                      type="text" 
+                      required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                      className={`w-full bg-zinc-950 border ${username.length >= 6 && isUsernameAvailable === false ? 'border-red-500 focus:border-red-500' : 'border-zinc-800 focus:border-white'} text-white p-3 text-sm focus:outline-none transition-colors`}
+                      placeholder="Minimum 6 characters"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Password</label>
+                  <input 
+                    type="password" 
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 text-white p-3 text-sm focus:outline-none focus:border-white transition-colors tracking-widest"
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={loading || (!isLogin && (username.length < 6 || isUsernameAvailable === false))}
+                  className="w-full mt-2 bg-white text-black font-black uppercase tracking-widest py-3 text-xs hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Processing...' : isLogin ? 'Authenticate' : 'Create Account'}
+                </button>
+              </form>
+            )}
+          </>
         )}
 
       </div>

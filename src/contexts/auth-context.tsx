@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showGatekeeper, setShowGatekeeper] = useState(false)
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null)
 
-  const isAuthenticated = !!session
+  const isAuthenticated = !!session && session?.user?.emailVerified === true;
   const isLoading = isPending
 
   const requireAuth = useCallback((action: () => void) => {

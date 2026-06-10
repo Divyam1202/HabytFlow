@@ -13,7 +13,7 @@
     "@better-auth/infra": "^0.2.14",
     "@hookform/resolvers": "^5.4.0",
     "bcrypt": "^6.0.0",
-    "better-auth": "^1.6.15",
+    "better-auth": "^1.6.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",

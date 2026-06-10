@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { authClient } from '@/lib/auth-client'
 import { X } from 'lucide-react'
+import { checkUsernameAvailability } from '@/actions/auth-actions'
 
 export function GatekeeperModal() {
   const { showGatekeeper, setShowGatekeeper, onAuthSuccess } = useAuth()
@@ -15,11 +16,35 @@ export function GatekeeperModal() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   
+  const [checkingUsername, setCheckingUsername] = useState(false)
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null)
+  
   const [successMessage, setSuccessMessage] = useState('')
   const [showOtpInput, setShowOtpInput] = useState(false)
   const [otp, setOtp] = useState('')
 
   if (!showGatekeeper) return null
+
+  useEffect(() => {
+    if (isLogin || username.length < 6) {
+      setIsUsernameAvailable(null)
+      return
+    }
+
+    setCheckingUsername(true)
+    const timeoutId = setTimeout(async () => {
+      try {
+        const available = await checkUsernameAvailability(username)
+        setIsUsernameAvailable(available)
+      } catch (err) {
+        setIsUsernameAvailable(null)
+      } finally {
+        setCheckingUsername(false)
+      }
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [username, isLogin])
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,6 +85,12 @@ export function GatekeeperModal() {
       } else {
         if (password.length < 8) {
           throw new Error('Password must be at least 8 characters')
+        }
+        if (username.length < 6) {
+          throw new Error('Username must be at least 6 characters')
+        }
+        if (isUsernameAvailable === false) {
+          throw new Error('Username is already taken')
         }
         
         const generatedUsername = username || email.split('@')[0]
@@ -182,14 +213,24 @@ export function GatekeeperModal() {
 
             {!isLogin && (
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Username</label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Username</label>
+                  {username.length > 0 && username.length < 6 && (
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Too Short</span>
+                  )}
+                  {username.length >= 6 && (
+                    <span className={`text-[10px] font-bold uppercase tracking-widest ${checkingUsername ? 'text-yellow-500' : isUsernameAvailable ? 'text-green-500' : 'text-red-500'}`}>
+                      {checkingUsername ? 'Checking...' : isUsernameAvailable ? 'Available' : 'Not Available'}
+                    </span>
+                  )}
+                </div>
                 <input 
                   type="text" 
                   required
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-white text-white p-3 text-sm focus:outline-none transition-colors"
-                  placeholder="Choose a unique username"
+                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                  className={`w-full bg-zinc-950 border ${username.length >= 6 && isUsernameAvailable === false ? 'border-red-500 focus:border-red-500' : 'border-zinc-800 focus:border-white'} text-white p-3 text-sm focus:outline-none transition-colors`}
+                  placeholder="Minimum 6 characters"
                 />
               </div>
             )}

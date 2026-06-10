@@ -62,10 +62,12 @@ export function GatekeeperModal() {
           throw new Error('Password must be at least 8 characters')
         }
         
+        const generatedUsername = username || email.split('@')[0]
         const { data, error } = await authClient.signUp.email({
           email,
           password,
-          name: username || email.split('@')[0]
+          name: generatedUsername,
+          username: generatedUsername,
         })
         
         if (error) throw error

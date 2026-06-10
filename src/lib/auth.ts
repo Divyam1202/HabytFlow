@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth"
 import { mongodbAdapter } from "better-auth/adapters/mongodb"
 import { MongoClient } from "mongodb"
 import { nextCookies } from "better-auth/next-js"
-import { emailOTP } from "better-auth/plugins"
+import { emailOTP, username } from "better-auth/plugins"
 import { dash } from "@better-auth/infra"
 import nodemailer from "nodemailer"
 
@@ -28,6 +28,7 @@ export const auth = betterAuth({
   ],
   plugins: [
     dash(),
+    username(),
     nextCookies(),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {

@@ -78,7 +78,21 @@ export function GatekeeperModal() {
           email,
           password,
         })
-        if (error) throw error
+        if (error) {
+          if (error.code === 'EMAIL_NOT_VERIFIED' || error?.message?.includes('not verified')) {
+            const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
+              email,
+              type: "email-verification"
+            })
+            if (otpError) throw otpError
+            
+            setSuccessMessage('Please verify your email! OTP sent.')
+            setShowOtpInput(true)
+            setLoading(false)
+            return
+          }
+          throw error
+        }
         onAuthSuccess()
       } else {
         if (password.length < 8) {
@@ -96,7 +110,21 @@ export function GatekeeperModal() {
           username: generatedUsername,
         })
         
-        if (error) throw error
+        if (error) {
+          if (error.code === 'USER_ALREADY_EXISTS') {
+            const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
+              email,
+              type: "email-verification"
+            })
+            if (otpError) throw otpError
+
+            setSuccessMessage('Account exists but needs verification! OTP sent.')
+            setShowOtpInput(true)
+            setLoading(false)
+            return
+          }
+          throw error
+        }
         
         // Send the OTP for email verification
         const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({

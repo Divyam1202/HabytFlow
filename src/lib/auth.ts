@@ -5,7 +5,10 @@ import { nextCookies } from "better-auth/next-js"
 import { emailOTP } from "better-auth/plugins"
 import nodemailer from "nodemailer"
 
-const client = new MongoClient(process.env.MONGODB_URI as string)
+// Provide a fallback URI for Next.js build time when environment variables might be missing
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/habitflow_fallback"
+
+const client = new MongoClient(MONGODB_URI)
 const db = client.db()
 
 const transporter = nodemailer.createTransport({

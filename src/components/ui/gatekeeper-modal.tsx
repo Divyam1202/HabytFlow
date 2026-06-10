@@ -98,9 +98,16 @@ export function GatekeeperModal() {
         
         if (error) throw error
         
-        // Auto sign-in complete (verification disabled)
-        setSuccessMessage('Account created successfully!')
-        onAuthSuccess()
+        // Send the OTP for email verification
+        const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
+          email,
+          type: "email-verification"
+        })
+
+        if (otpError) throw otpError
+
+        setSuccessMessage('Email has been sent, check OTP!')
+        setShowOtpInput(true)
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed.')

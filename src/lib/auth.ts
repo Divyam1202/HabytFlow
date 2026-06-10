@@ -47,5 +47,12 @@ export const auth = betterAuth({
     requireVerification: true,
     autoSignInAfterVerification: true,
     sendOnSignUp: false // We will trigger the OTP manually
+  },
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === "production",
+    defaultTheme: "dark",
+    ipAddress: {
+      ipAddressHeaders: ["x-vercel-forwarded-for", "x-forwarded-for"],
+    },
   }
 })

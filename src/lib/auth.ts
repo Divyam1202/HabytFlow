@@ -25,6 +25,7 @@ export const auth = betterAuth({
   database: mongodbAdapter(db),
   trustedOrigins: [
     "https://habit-flow-wheat.vercel.app", 
+    "https://habit-flow-ten-murex.vercel.app",
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
     "http://127.0.0.1:3000",
     "http://localhost:3000"

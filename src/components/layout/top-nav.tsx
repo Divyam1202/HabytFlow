@@ -70,12 +70,23 @@ export function TopNav() {
               <div className="text-xs font-medium text-zinc-500 tracking-wider uppercase">
                 June 8, 2026
               </div>
-              {!isAuthenticated && mounted && (
+              {!isAuthenticated && mounted ? (
                 <button 
                   onClick={() => setShowGatekeeper(true)}
                   className="text-[10px] uppercase tracking-widest text-zinc-400 hover:text-white transition-colors duration-150 underline decoration-zinc-800 hover:decoration-white underline-offset-2"
                 >
                   Sign In / Register
+                </button>
+              ) : mounted && (
+                <button 
+                  onClick={() => {
+                    import('@/lib/auth-client').then(({ authClient }) => {
+                      authClient.signOut().then(() => window.location.reload())
+                    })
+                  }}
+                  className="text-[10px] uppercase tracking-widest text-red-500/70 hover:text-red-500 transition-colors duration-150 underline decoration-red-900/50 hover:decoration-red-500 underline-offset-2"
+                >
+                  Sign Out
                 </button>
               )}
             </div>

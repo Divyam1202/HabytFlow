@@ -37,7 +37,7 @@ export default function BrutalistDashboard() {
   const { timeFormat } = useSettings()
   const { gridData, heatmapData, todayHabits, toggleTodayHabit, toggleGridHabit } = useHabitContext()
   const { isAuthenticated } = useAuth()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [selectedWeek, setSelectedWeek] = useState<'all' | 1 | 2 | 3 | 4>('all')
   const [animatingCells, setAnimatingCells] = useState<Record<string, boolean>>({})
 
@@ -58,7 +58,11 @@ export default function BrutalistDashboard() {
         const lastActive = parseInt(lastActiveStr, 10);
         if (now - lastActive > STAGNANT_TIME) {
           setLoading(true);
+        } else {
+          setLoading(false);
         }
+      } else {
+        setLoading(false);
       }
     };
 

@@ -7,7 +7,7 @@ import { X } from 'lucide-react'
 import { checkUsernameAvailability } from '@/actions/auth-actions'
 
 export function GatekeeperModal() {
-  const { showGatekeeper, setShowGatekeeper, onAuthSuccess } = useAuth()
+  const { showGatekeeper, setShowGatekeeper, onAuthSuccess, isAuthenticated } = useAuth()
   
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
@@ -78,7 +78,21 @@ export function GatekeeperModal() {
           email,
           password,
         })
-        if (error) throw error
+        if (error) {
+          if (error.code === 'EMAIL_NOT_VERIFIED' || error?.message?.includes('not verified')) {
+            const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
+              email,
+              type: "email-verification"
+            })
+            if (otpError) throw otpError
+            
+            setSuccessMessage('Please verify your email! OTP sent.')
+            setShowOtpInput(true)
+            setLoading(false)
+            return
+          }
+          throw error
+        }
         onAuthSuccess()
       } else {
         if (password.length < 8) {
@@ -96,11 +110,32 @@ export function GatekeeperModal() {
           username: generatedUsername,
         })
         
-        if (error) throw error
+        if (error) {
+          if (error.code === 'USER_ALREADY_EXISTS') {
+            const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
+              email,
+              type: "email-verification"
+            })
+            if (otpError) throw otpError
+
+            setSuccessMessage('Account exists but needs verification! OTP sent.')
+            setShowOtpInput(true)
+            setLoading(false)
+            return
+          }
+          throw error
+        }
         
-        // Auto sign-in complete (verification disabled)
-        setSuccessMessage('Account created successfully!')
-        onAuthSuccess()
+        // Send the OTP for email verification
+        const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
+          email,
+          type: "email-verification"
+        })
+
+        if (otpError) throw otpError
+
+        setSuccessMessage('Email has been sent, check OTP!')
+        setShowOtpInput(true)
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed.')
@@ -115,17 +150,19 @@ export function GatekeeperModal() {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div 
         className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-        onClick={() => setShowGatekeeper(false)}
+        onClick={() => { if (isAuthenticated) setShowGatekeeper(false) }}
       />
       
       <div className="relative w-full max-w-md bg-black border border-zinc-800 p-8 shadow-2xl flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
         
-        <button 
-          onClick={() => setShowGatekeeper(false)}
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
-        >
-          <X size={20} />
-        </button>
+        {isAuthenticated && (
+          <button 
+            onClick={() => setShowGatekeeper(false)}
+            className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
+          >
+            <X size={20} />
+          </button>
+        )}
 
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-black uppercase tracking-tight text-white">

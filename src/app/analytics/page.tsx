@@ -9,6 +9,30 @@ const DynamicResponsiveContainer = dynamic(
   { ssr: false }
 )
 import { useHabitContext } from '@/contexts/habit-context'
+import { Flame, Check, Rocket } from 'lucide-react'
+
+// --- Components ---
+function AnimatedNumber({ value, start }: { value: number, start: boolean }) {
+  const [displayValue, setDisplayValue] = React.useState(0)
+
+  React.useEffect(() => {
+    if (!start) return
+    let startTimestamp: number | null = null
+    const duration = 2000 // 2 seconds
+    let frameId: number
+    const animate = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1)
+      const easeOut = 1 - Math.pow(1 - progress, 3)
+      setDisplayValue(Math.floor(easeOut * value))
+      if (progress < 1) frameId = requestAnimationFrame(animate)
+    }
+    frameId = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(frameId)
+  }, [value, start])
+
+  return <>{displayValue}</>
+}
 
 const MOCK_MONTHLY_DATA = [
   { month: 'Jan', rate: 45 },
@@ -42,7 +66,29 @@ const FAKE_REPORTS = [
 
 export default function AnalyticsPage() {
   const [selectedReport, setSelectedReport] = useState(FAKE_REPORTS[0].id)
-  const { gridData, todayActivity } = useHabitContext()
+  const { gridData, todayActivity, heatmapData } = useHabitContext()
+
+  // --- Metrics Calculations ---
+  const monthlyTotalCompletedDays = gridData.reduce((acc, habit) => acc + habit.days.filter(d => d.completed).length, 0);
+
+  const activeDaysArray = Array.from({ length: 30 }).map((_, i) => {
+    return gridData.some(habit => habit.days[i]?.completed);
+  });
+  const monthlyTotalActiveDays = activeDaysArray.filter(Boolean).length;
+
+  const allTimeTotalTicks = heatmapData.reduce((acc, day) => acc + day.count, 0)
+  const allTimeActiveDays = heatmapData.filter(day => day.count > 0).length
+
+  let currentStreak = 0;
+  let allTimeMaxStreak = 0;
+  for (const day of heatmapData) {
+    if (day.count > 0) {
+      currentStreak++;
+      if (currentStreak > allTimeMaxStreak) allTimeMaxStreak = currentStreak;
+    } else {
+      currentStreak = 0;
+    }
+  }
 
   const pieDataRaw = gridData.reduce((acc, h) => {
     const completedCount = h.days.filter(d => d.completed).length;
@@ -59,11 +105,79 @@ export default function AnalyticsPage() {
   const COLORS = ['#ffffff', '#a1a1aa', '#52525b', '#27272a', '#18181b', '#09090b'];
 
   return (
-    <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-24 space-y-12">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="max-w-[1200px] mx-auto px-6 pt-12 pb-24 space-y-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4">
         <div>
           <h1 className="text-2xl font-bold uppercase tracking-tight text-white">Analytics</h1>
           <p className="text-zinc-500 mt-2 text-sm">Deep dive into your consistency metrics.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3">
+          <div className="flex flex-col gap-6 bg-black p-6 border border-zinc-900 rounded-[1px]">
+            <div>
+              <h1 className="text-xl font-bold uppercase tracking-tight text-white mb-4">Productivity Dashboard</h1>
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[1px] border border-white bg-white text-black text-[10px] font-black uppercase tracking-wider min-w-max">
+                  <span>🔥</span> 1 Wk
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[1px] border border-zinc-500 bg-zinc-900 text-white text-[10px] font-bold uppercase tracking-wider min-w-max">
+                  <span>⚡</span> 2 Wks
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[1px] border border-zinc-800 bg-black text-zinc-600 text-[10px] font-bold uppercase tracking-wider min-w-max opacity-50">
+                  <span>🚀</span> 3 Wks
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[1px] border border-zinc-800 bg-black text-zinc-600 text-[10px] font-bold uppercase tracking-wider min-w-max opacity-50">
+                  <span>🌟</span> 4 Wks
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="border border-zinc-800 p-4 relative overflow-hidden group">
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Highest Streak (All-Time)</div>
+                <div className="text-3xl font-black text-white"><AnimatedNumber start={true} value={allTimeMaxStreak} /></div>
+                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Flame size={48} />
+                </div>
+              </div>
+              <div className="border border-zinc-800 p-4 relative overflow-hidden group">
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Ticks</div>
+                <div className="text-3xl font-black text-white"><AnimatedNumber start={true} value={allTimeTotalTicks} /></div>
+                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Check size={48} />
+                </div>
+              </div>
+              <div className="border border-zinc-800 p-4 relative overflow-hidden group">
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Active Days</div>
+                <div className="text-3xl font-black text-white"><AnimatedNumber start={true} value={allTimeActiveDays} /></div>
+                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Rocket size={48} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-1">
+          <div className="h-full border border-zinc-900 bg-black p-4 flex flex-col justify-center gap-4">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-white mb-2">Monthly Stats</h3>
+            <div className="space-y-4 flex-1 flex flex-col justify-center">
+              <div>
+                <div className="text-2xl font-black text-white tabular-nums">{Math.round((monthlyTotalCompletedDays / (gridData.length * 30 || 1)) * 100)}%</div>
+                <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Completion Rate</div>
+              </div>
+              <div>
+                <div className="text-2xl font-black text-white tabular-nums">{monthlyTotalActiveDays} <span className="text-sm text-zinc-600">/ 30</span></div>
+                <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Days Logged</div>
+              </div>
+              <div>
+                <div className="text-2xl font-black text-white tabular-nums">{gridData.length}</div>
+                <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Active Habits</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

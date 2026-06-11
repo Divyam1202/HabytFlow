@@ -160,38 +160,33 @@ export default function BrutalistDashboard() {
     <>
       {loading && <CanvasLoader onComplete={() => setLoading(false)} />}
 
-      {/* Initialize Journey Overlay */}
-      {isAuthenticated && !hasStartedJourney && !loading && (
-        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 transition-all duration-500 animate-in fade-in zoom-in-95">
-          <div className="bg-zinc-950 border border-zinc-800 p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-6">
-                <Rocket className="w-8 h-8 text-white" />
-                <h2 className="text-2xl font-black uppercase tracking-tighter text-white">Initialize Your Journey</h2>
+      <div className={`max-w-[1000px] mx-auto px-6 pt-8 pb-24 space-y-8 ${loading ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100 transition-opacity duration-700'}`}>
+      
+        {/* Initialize Journey Banner */}
+        {isAuthenticated && !hasStartedJourney && !loading && (
+          <div className="bg-zinc-950 border border-zinc-800 p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden animate-in fade-in slide-in-from-top-4">
+            <div className="absolute -top-12 -left-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+            <div className="relative z-10 flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <Rocket className="w-6 h-6 text-white" />
+                <h2 className="text-xl font-black uppercase tracking-tighter text-white">Initialize Your Journey</h2>
               </div>
-              
-              <p className="text-zinc-400 text-sm leading-relaxed mb-8">
+              <p className="text-zinc-400 text-sm leading-relaxed max-w-xl">
                 Welcome to HabitFlow. You are currently viewing simulated preview data. To begin tracking your real activity, initialize your profile. This will erase the preview data and prepare a blank slate.
               </p>
-              
-              <button 
-                onClick={() => {
-                  initializeJourney()
-                  router.push('/settings')
-                }}
-                className="w-full bg-green-500 text-black py-4 font-black uppercase tracking-widest text-sm hover:bg-green-400 transition-colors flex items-center justify-center gap-2 group"
-              >
-                Start Tracking & Set Schedule
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
             </div>
+            <button 
+              onClick={() => {
+                initializeJourney()
+                router.push('/habits')
+              }}
+              className="w-full md:w-auto px-8 bg-green-500 text-black py-4 font-black uppercase tracking-widest text-sm hover:bg-green-400 transition-colors flex items-center justify-center gap-2 group relative z-10 whitespace-nowrap"
+            >
+              Start Tracking
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
-        </div>
-      )}
-
-      <div className={`max-w-[1000px] mx-auto px-6 pt-8 pb-24 space-y-8 ${loading ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100 transition-opacity duration-700'}`}>
+        )}
 
         {/* Section A: The Streak Row (Top Hero Element) */}
         <div className="flex flex-col gap-6 bg-black p-6 border border-zinc-900 rounded-[1px]">
@@ -240,6 +235,15 @@ export default function BrutalistDashboard() {
 
         {/* Section B: Today's Action Items */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {gridData.length === 0 && (
+            <div className="col-span-full border border-zinc-800 bg-zinc-950 p-8 flex flex-col items-center justify-center text-center">
+              <h3 className="text-white text-lg font-bold uppercase tracking-widest mb-2">No Habits Configured</h3>
+              <p className="text-zinc-500 text-sm mb-6">You haven't set up any habits to track yet.</p>
+              <button onClick={() => router.push('/habits')} className="bg-white text-black px-6 py-2 font-bold uppercase tracking-wider text-xs hover:bg-zinc-200 transition-colors">
+                Go to Manage Habits
+              </button>
+            </div>
+          )}
           {gridData.map(habit => {
             const isCompleted = todayHabits.includes(habit.id);
 
@@ -297,6 +301,11 @@ export default function BrutalistDashboard() {
               </tr>
             </thead>
             <tbody>
+              {gridData.length === 0 && (
+                <tr>
+                  <td colSpan={32} className="text-center text-zinc-600 text-xs py-8 uppercase tracking-widest">No tracking data available</td>
+                </tr>
+              )}
               {gridData.map((habit) => (
                 <tr key={habit.id}>
                   <td className="py-1.5 pr-4">

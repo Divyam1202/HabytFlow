@@ -4,19 +4,13 @@ import React, { useState } from 'react'
 import { Plus, Settings2, Trash2, X, Clock, Bell } from 'lucide-react'
 import { useSettings, formatTime } from '@/hooks/useSettings'
 
-const INITIAL_HABITS = [
-  { id: 1, name: "Gym", category: "Fitness", streak: 30, goal: "Daily", time: "18:00", notification: "30 mins" },
-  { id: 2, name: "Reading", category: "Mind", streak: 12, goal: "Daily", time: "21:30", notification: "15 mins" },
-  { id: 3, name: "Coding", category: "Work", streak: 7, goal: "Weekdays", time: "09:00", notification: "5 mins" },
-  { id: 4, name: "Meditation", category: "Mind", streak: 45, goal: "Daily", time: "07:00", notification: "None" },
-  { id: 5, name: "No Spend", category: "Finance", streak: 3, goal: "Daily", time: "", notification: "None" }
-]
+import { useHabitContext } from '@/contexts/habit-context'
 
 const NOTIFICATION_OPTIONS = ['None', '5 mins', '15 mins', '30 mins', '1 hr']
 
 export default function HabitsPage() {
   const { timeFormat } = useSettings()
-  const [habits, setHabits] = useState(INITIAL_HABITS)
+  const { gridData: habits, addHabit, editHabit, deleteHabit: deleteHabitContext } = useHabitContext()
   const [isEditing, setIsEditing] = useState<number | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
 
@@ -37,18 +31,18 @@ export default function HabitsPage() {
     setShowAddForm(false)
   }
 
-  const handleEdit = (habit: typeof INITIAL_HABITS[0]) => {
-    setName(habit.name)
-    setCategory(habit.category)
-    setGoal(habit.goal)
-    setTime(habit.time)
-    setNotification(habit.notification)
+  const handleEdit = (habit: any) => {
+    setName(habit.name || '')
+    setCategory(habit.category || 'Fitness')
+    setGoal(habit.goal || 'Daily')
+    setTime(habit.time || '')
+    setNotification(habit.notification || 'None')
     setIsEditing(habit.id)
     setShowAddForm(true)
   }
 
   const handleDelete = (id: number) => {
-    setHabits(prev => prev.filter(h => h.id !== id))
+    deleteHabitContext(id)
   }
 
   const handleSave = (e: React.FormEvent) => {
@@ -56,18 +50,9 @@ export default function HabitsPage() {
     if (!name.trim()) return
 
     if (isEditing) {
-      setHabits(prev => prev.map(h => h.id === isEditing ? { ...h, name, category, goal, time, notification } : h))
+      editHabit(isEditing, { name, category, goal, time, notification })
     } else {
-      const newHabit = {
-        id: Date.now(),
-        name,
-        category,
-        goal,
-        streak: 0,
-        time,
-        notification
-      }
-      setHabits(prev => [...prev, newHabit])
+      addHabit({ name, category, goal, streak: 0, time, notification })
     }
     resetForm()
   }
@@ -96,9 +81,9 @@ export default function HabitsPage() {
               <div className="flex flex-wrap items-center gap-4 mt-2 text-xs font-medium uppercase tracking-widest text-zinc-500">
                 <span>{habit.category}</span>
                 <span className="w-1 h-1 bg-zinc-700 rounded-full" />
-                <span>{habit.goal}</span>
+                <span>{habit.goal || 'Daily'}</span>
                 <span className="w-1 h-1 bg-zinc-700 rounded-full" />
-                <span className="text-white flex items-center gap-1">🔥 {habit.streak} Days</span>
+                <span className="text-white flex items-center gap-1">🔥 {habit.streak || 0} Days</span>
               </div>
             </div>
 
@@ -107,12 +92,12 @@ export default function HabitsPage() {
               <div className="flex items-center gap-4 border border-zinc-800 px-4 py-2 bg-zinc-950">
                 <div className="flex items-center gap-2">
                   <Clock size={14} className="text-zinc-500" />
-                  <span className="text-xs font-black text-white tabular-nums">{formatTime(habit.time, timeFormat)}</span>
+                  <span className="text-xs font-black text-white tabular-nums">{habit.time ? formatTime(habit.time, timeFormat) : 'Anytime'}</span>
                 </div>
                 <div className="w-[1px] h-4 bg-zinc-800" />
                 <div className="flex items-center gap-2">
-                  <Bell size={14} className={habit.notification !== 'None' ? 'text-zinc-300' : 'text-zinc-700'} />
-                  <span className={`text-[10px] font-bold uppercase tracking-widest ${habit.notification !== 'None' ? 'text-zinc-400' : 'text-zinc-700'}`}>{habit.notification}</span>
+                  <Bell size={14} className={(habit.notification && habit.notification !== 'None') ? 'text-zinc-300' : 'text-zinc-700'} />
+                  <span className={`text-[10px] font-bold uppercase tracking-widest ${(habit.notification && habit.notification !== 'None') ? 'text-zinc-400' : 'text-zinc-700'}`}>{habit.notification || 'None'}</span>
                 </div>
               </div>
 

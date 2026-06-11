@@ -16,7 +16,7 @@ export type ActivityState = {
   hrAverage: number | null;
 }
 
-type HabitDef = { id: number; name: string; category: string; time: string }
+export type HabitDef = { id: number; name: string; category: string; time: string; notification?: string; goal?: string; streak?: number; }
 export type GridHabit = HabitDef & { days: {day: number; completed: boolean}[] }
 
 export type HabitContextType = {
@@ -37,6 +37,10 @@ export type HabitContextType = {
   
   hasStartedJourney: boolean;
   initializeJourney: () => void;
+  
+  addHabit: (habit: Omit<HabitDef, 'id'>) => void;
+  editHabit: (id: number, habit: Partial<HabitDef>) => void;
+  deleteHabit: (id: number) => void;
 }
 
 const HabitContext = createContext<HabitContextType | null>(null)
@@ -209,14 +213,8 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   const initializeJourney = () => {
     requireAuth(() => {
       setHasStartedJourney(true)
-      // Reset grid to empty habits
-      setGridData(MOCK_HABITS.map(habit => ({
-        ...habit,
-        days: Array.from({ length: 30 }).map((_, i) => ({
-          day: i + 1,
-          completed: false
-        }))
-      })))
+      // Reset grid completely
+      setGridData([])
       // Reset heatmap
       setHeatmapData(Array.from({ length: 364 }).map((_, i) => ({ id: i, count: 0 })))
       // Reset today
@@ -264,6 +262,29 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     requireAuth(() => setTodayActivity(updater))
   }
 
+  const addHabit = (habit: Omit<HabitDef, 'id'>) => {
+    requireAuth(() => {
+      setGridData(prev => [...prev, {
+        ...habit,
+        id: Date.now(),
+        days: Array.from({ length: 30 }).map((_, i) => ({ day: i + 1, completed: false }))
+      }])
+    })
+  }
+
+  const editHabit = (id: number, habit: Partial<HabitDef>) => {
+    requireAuth(() => {
+      setGridData(prev => prev.map(h => h.id === id ? { ...h, ...habit } : h))
+    })
+  }
+
+  const deleteHabit = (id: number) => {
+    requireAuth(() => {
+      setGridData(prev => prev.filter(h => h.id !== id))
+      setTodayHabits(prev => prev.filter(x => x !== id))
+    })
+  }
+
   return (
     <HabitContext.Provider value={{
       currentSystemDate,
@@ -273,7 +294,10 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
       gridData, toggleGridHabit,
       heatmapData,
       hasStartedJourney,
-      initializeJourney
+      initializeJourney,
+      addHabit,
+      editHabit,
+      deleteHabit
     }}>
       {children}
     </HabitContext.Provider>

@@ -117,7 +117,7 @@ export function CanvasLoader({ onComplete }: CanvasLoaderProps) {
         ctx.save()
         ctx.translate(cx, cy)
         ctx.scale(pulse, pulse)
-        ctx.fillText('HABITFLOW', 0, 0)
+        ctx.fillText('HABYTFLOW', 0, 0)
         ctx.restore()
       }
       

@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Sun, Moon, LayoutDashboard, CheckSquare, Calendar, BarChart2, Settings, Menu, X } from 'lucide-react'
+import { Sun, Moon, LayoutDashboard, CheckSquare, Calendar, BarChart2, Settings, Menu, X, ShieldAlert } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useAuth } from '@/contexts/auth-context'
 
 export function TopNav() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
-  const { isAuthenticated, setShowGatekeeper } = useAuth()
+  const { isAuthenticated, setShowGatekeeper, user } = useAuth()
   const [mounted, setMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -26,13 +26,17 @@ export function TopNav() {
     }
   }, [mobileMenuOpen])
 
-  const navLinks = [
+  const baseLinks = [
     { name: 'Dashboard', href: '/', icon: <LayoutDashboard size={18} /> },
     { name: 'Habits', href: '/habits', icon: <CheckSquare size={18} /> },
     { name: 'Calendar', href: '/calendar', icon: <Calendar size={18} /> },
     { name: 'Analytics', href: '/analytics', icon: <BarChart2 size={18} /> },
     { name: 'Settings', href: '/settings', icon: <Settings size={18} /> },
   ]
+
+  const navLinks = user?.email === 'habytflow@gmail.com'
+    ? [...baseLinks, { name: 'Admin', href: '/admin', icon: <ShieldAlert size={18} /> }]
+    : baseLinks
 
   return (
     <>

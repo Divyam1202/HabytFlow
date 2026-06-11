@@ -5,8 +5,9 @@ import { usePathname } from 'next/navigation'
 import { LayoutDashboard, CheckSquare, CalendarDays, LineChart, Settings, Sun, Moon } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/contexts/auth-context'
 
-const navItems = [
+const baseNavItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/habits', label: 'Habits Tracker', icon: CheckSquare },
   { href: '/calendar', label: 'Calendar', icon: CalendarDays },
@@ -17,6 +18,11 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname()
   const { setTheme, theme } = useTheme()
+  const { user } = useAuth()
+
+  const navItems = user?.email === 'habytflow@gmail.com'
+    ? [...baseNavItems, { href: '/admin', label: 'Admin', icon: LayoutDashboard }]
+    : baseNavItems
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-background px-4 py-6">

@@ -12,7 +12,7 @@ import { GatekeeperModal } from '@/components/ui/gatekeeper-modal'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'HabitFlow | Modern Habit Tracker',
+  title: 'HabytFlow | Modern Habit Tracker',
   description: 'Track your daily habits on a monthly calendar view',
 }
 

@@ -68,7 +68,7 @@ export const auth = betterAuth({
           await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
-            subject: `Your HabitFlow OTP: ${otp}`,
+            subject: `Your HabytFlow OTP: ${otp}`,
             text: `Your One-Time Password is ${otp}`,
           })
         }

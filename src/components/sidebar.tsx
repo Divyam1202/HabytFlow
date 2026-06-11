@@ -28,7 +28,7 @@ export function Sidebar() {
     <div className="flex h-screen w-64 flex-col border-r bg-background px-4 py-6">
       <div className="flex items-center gap-2 px-2 mb-8 text-emerald-600 dark:text-emerald-400">
         <CheckSquare className="h-6 w-6" />
-        <span className="text-xl font-bold tracking-tight text-foreground">HabitFlow</span>
+        <span className="text-xl font-bold tracking-tight text-foreground">HabytFlow</span>
       </div>
 
       <nav className="flex-1 space-y-2">

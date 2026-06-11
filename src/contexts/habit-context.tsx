@@ -161,7 +161,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     const checkRollover = () => {
       const nowStr = getLocalYYYYMMDD()
       if (nowStr !== currentSystemDate) {
-        console.log(`[HabitFlow Engine] Rollover triggered: ${currentSystemDate} -> ${nowStr}`);
+        console.log(`[HabytFlow Engine] Rollover triggered: ${currentSystemDate} -> ${nowStr}`);
         
         // 1. Archive: Append today's total ticks to heatmap
         const totalTicks = todayHabits.length

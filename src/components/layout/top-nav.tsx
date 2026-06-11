@@ -48,7 +48,7 @@ export function TopNav() {
             <div className="w-4 h-4 bg-white rounded-[1px] flex items-center justify-center">
               <div className="w-1.5 h-1.5 bg-black rounded-[1px]" />
             </div>
-            HabitFlow
+            HabytFlow
           </Link>
 
           {/* Laptop/Desktop Navigation (min-width: 768px) */}

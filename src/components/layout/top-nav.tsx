@@ -73,7 +73,7 @@ export function TopNav() {
           <div className="flex items-center gap-4 z-50 relative">
             <div className="flex flex-col items-end justify-center gap-0.5">
               <div className="hidden sm:block text-xs font-medium text-zinc-500 tracking-wider uppercase">
-                June 8, 2026
+                {mounted ? new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '...'}
               </div>
               {!isAuthenticated && mounted ? (
                 <button 

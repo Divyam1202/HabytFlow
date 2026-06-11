@@ -396,7 +396,11 @@ export default function BrutalistDashboard() {
                     itemStyle={{ color: '#000000' }}
                     labelStyle={{ color: '#000000', marginBottom: '4px' }}
                     formatter={(value: any) => [`${value}% completed`, 'Trend']}
-                    labelFormatter={(label) => `Day ${label}`}
+                    labelFormatter={(label) => {
+                      const d = new Date();
+                      d.setDate(d.getDate() - (30 - Number(label)));
+                      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    }}
                   />
                   <Line
                     type="monotone"

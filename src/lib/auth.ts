@@ -50,7 +50,7 @@ export const auth = betterAuth({
     // Force standard HTTPS encryption protocol matching across your live server containers
     protocol: process.env.NODE_ENV === "development" ? "http" : "https"
   },
-  database: mongodbAdapter(dbPromise),
+  database: mongodbAdapter(dbPromise as any),
   // 2. Expand trusted origins to cover the root wildcard as well
   trustedOrigins: [
     "https://habit-flow-9684.vercel.app",

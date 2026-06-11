@@ -221,13 +221,35 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
       setTodayHabits([])
       setTodayNutrition(INITIAL_NUTRITION)
       setTodayActivity(INITIAL_ACTIVITY)
+      
+      // Fire-and-forget telemetry
+      fetch('/api/telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventType: 'journey_started', metadata: {} })
+      }).catch(console.error)
     })
   }
 
   const toggleTodayHabit = (id: number) => {
     if (isAuthenticated && !hasStartedJourney) return;
     requireAuth(() => {
-      setTodayHabits(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+      const isCompleting = !todayHabits.includes(id);
+      setTodayHabits(prev => isCompleting ? [...prev, id] : prev.filter(x => x !== id))
+      
+      if (isCompleting) {
+        const habit = gridData.find(h => h.id === id);
+        if (habit) {
+          fetch('/api/telemetry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              eventType: 'habit_completed', 
+              metadata: { habitName: habit.name, category: habit.category } 
+            })
+          }).catch(console.error)
+        }
+      }
       // Sync to gridData's "last day" which represents today
       setGridData(prev => prev.map(h => {
         if (h.id !== id) return h
@@ -269,6 +291,15 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         id: Date.now(),
         days: Array.from({ length: 30 }).map((_, i) => ({ day: i + 1, completed: false }))
       }])
+
+      fetch('/api/telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          eventType: 'habit_created', 
+          metadata: { habitName: habit.name, category: habit.category } 
+        })
+      }).catch(console.error)
     })
   }
 

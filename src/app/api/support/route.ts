@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, message } = await req.json()
+    const { email, message, type } = await req.json()
 
     if (!email || !message) {
       return NextResponse.json({ error: 'Email and message are required' }, { status: 400 })
@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
     
     const newRequest = new SupportRequest({
       email,
+      type: type || 'issue',
       message
     })
     

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 export default function ContactPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
+  const [type, setType] = useState('issue')
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
@@ -20,7 +21,7 @@ export default function ContactPage() {
       const res = await fetch('/api/support', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, message })
+        body: JSON.stringify({ email, type, message })
       })
 
       if (res.ok) {
@@ -63,6 +64,18 @@ export default function ContactPage() {
               required
               className="bg-zinc-950 border border-zinc-800 text-white p-4 text-sm focus:outline-none focus:border-white transition-colors"
             />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Request Type</label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="bg-zinc-950 border border-zinc-800 text-white p-4 text-sm focus:outline-none focus:border-white transition-colors uppercase tracking-widest"
+            >
+              <option value="issue">Issue / Bug Report</option>
+              <option value="feature_request">Feature Request</option>
+            </select>
           </div>
 
           <div className="flex flex-col gap-2">

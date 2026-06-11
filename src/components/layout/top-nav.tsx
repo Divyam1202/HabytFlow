@@ -71,8 +71,8 @@ export function TopNav() {
 
           {/* Right Section (All viewports) */}
           <div className="flex items-center gap-4 z-50 relative">
-            <div className="hidden sm:flex flex-col items-end justify-center gap-0.5">
-              <div className="text-xs font-medium text-zinc-500 tracking-wider uppercase">
+            <div className="flex flex-col items-end justify-center gap-0.5">
+              <div className="hidden sm:block text-xs font-medium text-zinc-500 tracking-wider uppercase">
                 June 8, 2026
               </div>
               {!isAuthenticated && mounted ? (

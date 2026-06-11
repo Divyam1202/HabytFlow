@@ -60,7 +60,6 @@ export const auth = betterAuth({
   plugins: [
     dash(),
     username(),
-    nextCookies(),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
         console.log(`[Better Auth] Sending ${type} OTP to ${email}: ${otp}`)
@@ -74,7 +73,8 @@ export const auth = betterAuth({
           })
         }
       }
-    })
+    }),
+    nextCookies(),
   ],
   emailAndPassword: {
     enabled: true,

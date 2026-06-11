@@ -147,6 +147,18 @@ export default function SettingsPage() {
             </div>
           </section>
 
+          <section className="space-y-4">
+            <h2 className="text-xs font-bold tracking-widest uppercase text-zinc-500">Support</h2>
+            <div className="border border-zinc-800 bg-black p-6 flex flex-col gap-4">
+              <a href="/contact" className="flex items-center justify-between p-4 border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-colors text-left">
+                <div>
+                  <div className="font-bold text-white">Contact Us</div>
+                  <div className="text-xs text-zinc-500 mt-1">Submit issues or feature requests directly to the developer.</div>
+                </div>
+              </a>
+            </div>
+          </section>
+
         </div>
       </div>
 

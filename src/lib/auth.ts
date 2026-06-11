@@ -54,7 +54,7 @@ export const auth = betterAuth({
   // 2. Expand trusted origins to cover the root wildcard as well
   trustedOrigins: [
     "https://habit-flow-9684.vercel.app",
-    "https://*.vercel.app", 
+    "https://*.vercel.app",
     "http://localhost:3000"
   ],
   plugins: [

@@ -18,14 +18,14 @@ const COLORS = ['#10b981', '#6366f1', '#f43f5e', '#f59e0b', '#0ea5e9', '#8b5cf6'
 
 export function AnalyticsCharts({ habits }: ChartsProps) {
   const allEntries = habits.flatMap((h: any) => h.entries)
-  
+
   // 1. Habit Completion Trend (Last 14 days)
   const last14Days = Array.from({ length: 14 }).map((_, i) => {
     const d = subDays(new Date(), 13 - i)
-    d.setUTCHours(0,0,0,0)
+    d.setUTCHours(0, 0, 0, 0)
     return d
   })
-  
+
   const trendData = last14Days.map(day => {
     const dateStr = day.toISOString().split('T')[0]
     const completedCount = allEntries.filter((e: any) => {
@@ -77,7 +77,7 @@ export function AnalyticsCharts({ habits }: ChartsProps) {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 12 }} dy={10} />
                 <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
                 />
                 <Line type="monotone" dataKey="completed" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6, strokeWidth: 0 }} />

@@ -50,7 +50,7 @@ export default function AnalyticsPage() {
     if (existing) existing.value += completedCount;
     else acc.push({ name: h.category, value: completedCount });
     return acc;
-  }, [] as {name: string, value: number}[]);
+  }, [] as { name: string, value: number }[]);
 
   if (todayActivity.sportsLog.length > 0) {
     pieDataRaw.push({ name: 'Sports', value: todayActivity.sportsLog.length });
@@ -68,13 +68,13 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
+
         {/* Sidebar */}
         <div className="lg:col-span-1 border border-zinc-900 bg-black p-4">
           <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-4">Report Archive</h3>
           <div className="flex flex-col gap-2 h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 pr-2">
             {FAKE_REPORTS.map(report => (
-              <button 
+              <button
                 key={report.id}
                 onClick={() => setSelectedReport(report.id)}
                 className={`p-3 text-left border rounded-[1px] transition-colors uppercase tracking-wider text-[10px] font-bold ${selectedReport === report.id ? 'border-white bg-zinc-900 text-white' : 'border-zinc-800 text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'}`}
@@ -87,7 +87,7 @@ export default function AnalyticsPage() {
 
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-8">
-          
+
           {/* Detailed Report View */}
           {FAKE_REPORTS.filter(r => r.id === selectedReport).map(report => (
             <div key={report.id} className="border border-zinc-900 bg-black p-6">
@@ -176,7 +176,7 @@ export default function AnalyticsPage() {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{ backgroundColor: '#000', border: '1px solid #27272a', borderRadius: '2px', fontSize: '10px' }}
                       itemStyle={{ color: '#fff', fontWeight: 'bold' }}
                     />

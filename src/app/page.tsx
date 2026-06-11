@@ -51,7 +51,7 @@ export default function BrutalistDashboard() {
     const checkStagnant = () => {
       const STAGNANT_TIME = 5 * 60 * 1000; // 5 minutes
       const now = Date.now();
-      
+
       const hasSeenLoader = sessionStorage.getItem('habitflow_has_seen_loader');
       const lastActiveStr = localStorage.getItem('habitflow_last_active');
 

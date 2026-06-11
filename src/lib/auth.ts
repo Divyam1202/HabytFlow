@@ -14,11 +14,9 @@ if (!MONGODB_URI) {
 
 // Global caching for the raw MongoClient to survive Next.js / Vercel Serverless re-execution
 let client: MongoClient
-let db: any
 
 if (process.env.NODE_ENV === "production") {
   client = new MongoClient(MONGODB_URI)
-  db = client.db()
 } else {
   const globalWithMongo = global as typeof globalThis & {
     _mongoClient?: MongoClient
@@ -27,8 +25,10 @@ if (process.env.NODE_ENV === "production") {
     globalWithMongo._mongoClient = new MongoClient(MONGODB_URI)
   }
   client = globalWithMongo._mongoClient
-  db = client.db()
 }
+
+// Explicitly connect to guarantee connection in Vercel Serverless before operations run
+const dbPromise = client.connect().then((c) => c.db())
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -50,7 +50,7 @@ export const auth = betterAuth({
     // Force standard HTTPS encryption protocol matching across your live server containers
     protocol: process.env.NODE_ENV === "development" ? "http" : "https"
   },
-  database: mongodbAdapter(db),
+  database: mongodbAdapter(dbPromise),
   // 2. Expand trusted origins to cover the root wildcard as well
   trustedOrigins: [
     "https://habit-flow-9684.vercel.app",

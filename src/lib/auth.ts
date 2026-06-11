@@ -39,13 +39,22 @@ const transporter = nodemailer.createTransport({
 })
 
 export const auth = betterAuth({
-  // Dynamically uses current deployment domain fallback safely
-  baseURL: process.env.BETTER_AUTH_URL || (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : "http://localhost:3000"),
+  // 1. Convert baseURL from a rigid string into a dynamic allowed hosts engine
+  baseURL: {
+    allowedHosts: [
+      "localhost:3000",
+      "127.0.0.1:3000",
+      "habit-flow-9684.vercel.app", // Your main canonical domain
+      "*.vercel.app"                 // Wildcard fallback to automatically catch all random deployment hashes
+    ],
+    // Force standard HTTPS encryption protocol matching across your live server containers
+    protocol: process.env.NODE_ENV === "development" ? "http" : "https"
+  },
   database: mongodbAdapter(db),
+  // 2. Expand trusted origins to cover the root wildcard as well
   trustedOrigins: [
-    "https://habit-flow-wheat.vercel.app",
-    "https://habit-flow-ten-murex.vercel.app",
-    "http://127.0.0.1:3000",
+    "https://habit-flow-9684.vercel.app",
+    "https://*.vercel.app", 
     "http://localhost:3000"
   ],
   plugins: [

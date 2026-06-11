@@ -181,7 +181,7 @@ export default function BrutalistDashboard() {
                   initializeJourney()
                   router.push('/settings')
                 }}
-                className="w-full bg-white text-black py-4 font-bold uppercase tracking-widest text-xs hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 group"
+                className="w-full bg-green-500 text-black py-4 font-black uppercase tracking-widest text-sm hover:bg-green-400 transition-colors flex items-center justify-center gap-2 group"
               >
                 Start Tracking & Set Schedule
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

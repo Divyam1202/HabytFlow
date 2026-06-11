@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Explicitly connect to guarantee connection in Vercel Serverless before operations run
-const dbPromise = client.connect().then((c) => c.db())
+const db = client.db()
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -50,7 +50,7 @@ export const auth = betterAuth({
     // Force standard HTTPS encryption protocol matching across your live server containers
     protocol: process.env.NODE_ENV === "development" ? "http" : "https"
   },
-  database: mongodbAdapter(dbPromise as any),
+  database: mongodbAdapter(db),
   // 2. Expand trusted origins to cover the root wildcard as well
   trustedOrigins: [
     "https://habit-flow-9684.vercel.app",

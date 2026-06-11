@@ -1,6 +1,12 @@
 'use client'
 
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import dynamic from 'next/dynamic'
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+
+const DynamicResponsiveContainer = dynamic(
+  () => import('recharts').then((mod) => mod.ResponsiveContainer),
+  { ssr: false }
+)
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { format, subDays, eachMonthOfInterval, subMonths } from 'date-fns'
 
@@ -66,7 +72,7 @@ export function AnalyticsCharts({ habits }: ChartsProps) {
         </CardHeader>
         <CardContent>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <DynamicResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 12 }} dy={10} />
@@ -76,7 +82,7 @@ export function AnalyticsCharts({ habits }: ChartsProps) {
                 />
                 <Line type="monotone" dataKey="completed" stroke="#6366f1" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6, strokeWidth: 0 }} />
               </LineChart>
-            </ResponsiveContainer>
+            </DynamicResponsiveContainer>
           </div>
         </CardContent>
       </Card>
@@ -88,7 +94,7 @@ export function AnalyticsCharts({ habits }: ChartsProps) {
         <CardContent>
           <div className="h-[300px] w-full">
             {distributionData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <DynamicResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={distributionData}
@@ -106,7 +112,7 @@ export function AnalyticsCharts({ habits }: ChartsProps) {
                   <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                   <Legend iconType="circle" />
                 </PieChart>
-              </ResponsiveContainer>
+              </DynamicResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
                 No data available
@@ -122,7 +128,7 @@ export function AnalyticsCharts({ habits }: ChartsProps) {
         </CardHeader>
         <CardContent>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <DynamicResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fontSize: 12 }} dy={10} />
@@ -130,7 +136,7 @@ export function AnalyticsCharts({ habits }: ChartsProps) {
                 <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Bar dataKey="completed" fill="#10b981" radius={[4, 4, 0, 0]} />
               </BarChart>
-            </ResponsiveContainer>
+            </DynamicResponsiveContainer>
           </div>
         </CardContent>
       </Card>

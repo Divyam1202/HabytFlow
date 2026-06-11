@@ -1,7 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts'
+import dynamic from 'next/dynamic'
+import { LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
+
+const DynamicResponsiveContainer = dynamic(
+  () => import('recharts').then((mod) => mod.ResponsiveContainer),
+  { ssr: false }
+)
 import { Check, Flame, Rocket, ChevronLeft, ChevronRight, Minus } from 'lucide-react'
 import { NutritionTracker } from '@/components/dashboard/nutrition-tracker'
 import { ActivityMetricsTracker } from '@/components/dashboard/activity-metrics-tracker'
@@ -324,7 +330,7 @@ export default function BrutalistDashboard() {
               </div>
             </div>
             <div className="h-40 w-full -ml-2">
-              <ResponsiveContainer width="100%" height="100%">
+              <DynamicResponsiveContainer width="100%" height="100%">
                 <LineChart data={filteredCompletionRate} margin={{ top: 5, right: 15, left: -15, bottom: 0 }}>
                   <XAxis
                     dataKey="day"
@@ -360,7 +366,7 @@ export default function BrutalistDashboard() {
                     isAnimationActive={false}
                   />
                 </LineChart>
-              </ResponsiveContainer>
+              </DynamicResponsiveContainer>
             </div>
           </div>
 

@@ -1,7 +1,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { LineChart, Line, BarChart, Bar, ResponsiveContainer, YAxis, XAxis, Tooltip, PieChart, Pie, Cell } from 'recharts'
+import dynamic from 'next/dynamic'
+import { LineChart, Line, BarChart, Bar, YAxis, XAxis, Tooltip, PieChart, Pie, Cell } from 'recharts'
+
+const DynamicResponsiveContainer = dynamic(
+  () => import('recharts').then((mod) => mod.ResponsiveContainer),
+  { ssr: false }
+)
 import { useHabitContext } from '@/contexts/habit-context'
 
 const MOCK_MONTHLY_DATA = [
@@ -123,35 +129,35 @@ export default function AnalyticsPage() {
             <div className="border border-zinc-900 bg-black p-6">
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-6">6-Month Trajectory</h3>
               <div className="h-48 w-full -ml-4">
-                <ResponsiveContainer width="100%" height="100%">
+                <DynamicResponsiveContainer width="100%" height="100%">
                   <LineChart data={MOCK_MONTHLY_DATA}>
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#71717a' }} tickFormatter={v => `${v}%`} />
                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#71717a' }} dy={10} />
                     <Tooltip contentStyle={{ backgroundColor: '#000', border: '1px solid #27272a' }} itemStyle={{ color: '#fff' }} />
                     <Line type="stepAfter" dataKey="rate" stroke="#ffffff" strokeWidth={2} dot={false} />
                   </LineChart>
-                </ResponsiveContainer>
+                </DynamicResponsiveContainer>
               </div>
             </div>
 
             <div className="border border-zinc-900 bg-black p-6">
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-6">Monthly Volume</h3>
               <div className="h-48 w-full -ml-4">
-                <ResponsiveContainer width="100%" height="100%">
+                <DynamicResponsiveContainer width="100%" height="100%">
                   <BarChart data={MOCK_MONTHLY_DATA}>
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#71717a' }} tickFormatter={v => `${v}%`} />
                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#71717a' }} dy={10} />
                     <Tooltip contentStyle={{ backgroundColor: '#000', border: '1px solid #27272a', borderRadius: '0px' }} itemStyle={{ color: '#fff' }} cursor={{ fill: '#18181b' }} />
                     <Bar dataKey="rate" fill="#ffffff" radius={0} />
                   </BarChart>
-                </ResponsiveContainer>
+                </DynamicResponsiveContainer>
               </div>
             </div>
 
             <div className="border border-zinc-900 bg-black p-6 flex flex-col">
               <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-6">Category Spread</h3>
               <div className="flex-1 min-h-[160px] w-full relative -ml-4">
-                <ResponsiveContainer width="100%" height="100%">
+                <DynamicResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={pieDataRaw}
@@ -175,7 +181,7 @@ export default function AnalyticsPage() {
                       itemStyle={{ color: '#fff', fontWeight: 'bold' }}
                     />
                   </PieChart>
-                </ResponsiveContainer>
+                </DynamicResponsiveContainer>
               </div>
             </div>
           </div>

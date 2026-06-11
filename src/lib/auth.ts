@@ -6,11 +6,29 @@ import { emailOTP, username } from "better-auth/plugins"
 import { dash } from "@better-auth/infra"
 import nodemailer from "nodemailer"
 
-// Provide a fallback URI for Next.js build time when environment variables might be missing
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/habitflow_fallback"
+const MONGODB_URI = process.env.MONGODB_URI
 
-const client = new MongoClient(MONGODB_URI)
-const db = client.db()
+if (!MONGODB_URI) {
+  throw new Error("Missing MONGODB_URI environment variable.")
+}
+
+// Global caching for the raw MongoClient to survive Next.js / Vercel Serverless re-execution
+let client: MongoClient
+let db: any
+
+if (process.env.NODE_ENV === "production") {
+  client = new MongoClient(MONGODB_URI)
+  db = client.db()
+} else {
+  const globalWithMongo = global as typeof globalThis & {
+    _mongoClient?: MongoClient
+  }
+  if (!globalWithMongo._mongoClient) {
+    globalWithMongo._mongoClient = new MongoClient(MONGODB_URI)
+  }
+  client = globalWithMongo._mongoClient
+  db = client.db()
+}
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -21,12 +39,12 @@ const transporter = nodemailer.createTransport({
 })
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
+  // Dynamically uses current deployment domain fallback safely
+  baseURL: process.env.BETTER_AUTH_URL || (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : "http://localhost:3000"),
   database: mongodbAdapter(db),
   trustedOrigins: [
-    "https://habit-flow-wheat.vercel.app", 
+    "https://habit-flow-wheat.vercel.app",
     "https://habit-flow-ten-murex.vercel.app",
-    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
     "http://127.0.0.1:3000",
     "http://localhost:3000"
   ],
@@ -37,7 +55,7 @@ export const auth = betterAuth({
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
         console.log(`[Better Auth] Sending ${type} OTP to ${email}: ${otp}`)
-        
+
         if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
           await transporter.sendMail({
             from: process.env.EMAIL_USER,
@@ -55,9 +73,10 @@ export const auth = betterAuth({
   emailVerification: {
     requireVerification: true,
     autoSignInAfterVerification: true,
-    sendOnSignUp: false 
+    sendOnSignUp: false
   },
   advanced: {
+    // Force cross-site secure cookie protocols natively on live domains
     useSecureCookies: process.env.NODE_ENV === "production",
     defaultTheme: "dark",
     ipAddress: {

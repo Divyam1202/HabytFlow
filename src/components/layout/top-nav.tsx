@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Sun, Moon, LayoutDashboard, CheckSquare, Calendar, BarChart2, Settings, Menu, X, ShieldAlert } from 'lucide-react'
+import { Sun, Moon, LayoutDashboard, CheckSquare, Calendar, BarChart2, Settings, Menu, X, ShieldAlert, MessageSquare } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useAuth } from '@/contexts/auth-context'
 
@@ -32,6 +32,7 @@ export function TopNav() {
     { name: 'Calendar', href: '/calendar', icon: <Calendar size={18} /> },
     { name: 'Analytics', href: '/analytics', icon: <BarChart2 size={18} /> },
     { name: 'Settings', href: '/settings', icon: <Settings size={18} /> },
+    { name: 'Contact Us', href: '/contact', icon: <MessageSquare size={18} /> },
   ]
 
   const navLinks = user?.email === 'habytflow@gmail.com'

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CheckSquare, CalendarDays, LineChart, Settings, Sun, Moon } from 'lucide-react'
+import { LayoutDashboard, CheckSquare, CalendarDays, LineChart, Settings, Sun, Moon, MessageSquare } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/auth-context'
@@ -13,6 +13,7 @@ const baseNavItems = [
   { href: '/calendar', label: 'Calendar', icon: CalendarDays },
   { href: '/analytics', label: 'Analytics', icon: LineChart },
   { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/contact', label: 'Contact Us', icon: MessageSquare },
 ]
 
 export function Sidebar() {

@@ -34,6 +34,9 @@ export type HabitContextType = {
   toggleGridHabit: (habitId: number, dayNum: number) => void;
   
   heatmapData: Array<{ id: number; count: number }>;
+  
+  hasStartedJourney: boolean;
+  initializeJourney: () => void;
 }
 
 const HabitContext = createContext<HabitContextType | null>(null)
@@ -93,7 +96,7 @@ const getLocalYYYYMMDD = () => {
 
 export function HabitProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false)
-  const { requireAuth } = useAuth()
+  const { requireAuth, user, isLoading, isAuthenticated } = useAuth()
   
   const [currentSystemDate, setCurrentSystemDate] = useState<string>(() => getLocalYYYYMMDD())
   const [todayHabits, setTodayHabits] = useState<number[]>([])
@@ -102,11 +105,16 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   
   const [gridData, setGridData] = useState<GridHabit[]>(SEED_GRID_DATA)
   const [heatmapData, setHeatmapData] = useState<{id: number, count: number}[]>(SEED_HEATMAP)
+  const [hasStartedJourney, setHasStartedJourney] = useState<boolean>(false)
+
+  const getStorageKey = () => user?.id ? `habitflow_state_${user.id}` : 'habitflow_state'
 
   // Hydration
   useEffect(() => {
+    if (isLoading) return;
+
     try {
-      const saved = localStorage.getItem('habitflow_state')
+      const saved = localStorage.getItem(getStorageKey())
       if (saved) {
         const parsed = JSON.parse(saved)
         setCurrentSystemDate(parsed.currentSystemDate || getLocalYYYYMMDD())
@@ -115,23 +123,32 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         setTodayActivity(parsed.todayActivity || INITIAL_ACTIVITY)
         setGridData(parsed.gridData || SEED_GRID_DATA)
         setHeatmapData(parsed.heatmapData || SEED_HEATMAP)
+        setHasStartedJourney(!!parsed.hasStartedJourney)
+      } else {
+        setCurrentSystemDate(getLocalYYYYMMDD())
+        setTodayHabits([])
+        setTodayNutrition(INITIAL_NUTRITION)
+        setTodayActivity(INITIAL_ACTIVITY)
+        setGridData(SEED_GRID_DATA)
+        setHeatmapData(SEED_HEATMAP)
+        setHasStartedJourney(false)
       }
     } catch (e) {
       console.error("Failed to parse habit state", e)
     }
     setMounted(true)
-  }, [])
+  }, [user?.id, isLoading])
 
   // Persistence & Rollover Check
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || isLoading) return
 
     const stateToSave = {
-      currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData
+      currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData, hasStartedJourney
     }
-    localStorage.setItem('habitflow_state', JSON.stringify(stateToSave))
+    localStorage.setItem(getStorageKey(), JSON.stringify(stateToSave))
 
-  }, [mounted, currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData])
+  }, [mounted, isLoading, user?.id, currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData, hasStartedJourney])
 
   // Midnight Rollover Engine
   useEffect(() => {
@@ -189,7 +206,28 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     }
   }, [mounted, currentSystemDate, todayHabits])
 
+  const initializeJourney = () => {
+    requireAuth(() => {
+      setHasStartedJourney(true)
+      // Reset grid to empty habits
+      setGridData(MOCK_HABITS.map(habit => ({
+        ...habit,
+        days: Array.from({ length: 30 }).map((_, i) => ({
+          day: i + 1,
+          completed: false
+        }))
+      })))
+      // Reset heatmap
+      setHeatmapData(Array.from({ length: 364 }).map((_, i) => ({ id: i, count: 0 })))
+      // Reset today
+      setTodayHabits([])
+      setTodayNutrition(INITIAL_NUTRITION)
+      setTodayActivity(INITIAL_ACTIVITY)
+    })
+  }
+
   const toggleTodayHabit = (id: number) => {
+    if (isAuthenticated && !hasStartedJourney) return;
     requireAuth(() => {
       setTodayHabits(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
       // Sync to gridData's "last day" which represents today
@@ -204,6 +242,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   }
 
   const toggleGridHabit = (habitId: number, dayNum: number) => {
+    if (isAuthenticated && !hasStartedJourney) return;
     requireAuth(() => {
       setGridData(prev => prev.map(h => {
         if (h.id !== habitId) return h
@@ -216,10 +255,12 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   }
 
   const updateNutritionWrapped = (updater: (prev: NutritionState) => NutritionState) => {
+    if (isAuthenticated && !hasStartedJourney) return;
     requireAuth(() => setTodayNutrition(updater))
   }
 
   const updateActivityWrapped = (updater: (prev: ActivityState) => ActivityState) => {
+    if (isAuthenticated && !hasStartedJourney) return;
     requireAuth(() => setTodayActivity(updater))
   }
 
@@ -230,7 +271,9 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
       todayNutrition, updateNutrition: updateNutritionWrapped,
       todayActivity, updateActivity: updateActivityWrapped,
       gridData, toggleGridHabit,
-      heatmapData
+      heatmapData,
+      hasStartedJourney,
+      initializeJourney
     }}>
       {children}
     </HabitContext.Provider>

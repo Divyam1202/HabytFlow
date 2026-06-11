@@ -10,6 +10,7 @@ type AuthContextType = {
   setShowGatekeeper: (show: boolean) => void;
   requireAuth: (action: () => void) => void;
   onAuthSuccess: () => void;
+  user: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -53,7 +54,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       showGatekeeper,
       setShowGatekeeper,
       requireAuth,
-      onAuthSuccess
+      onAuthSuccess,
+      user: session?.user || null
     }}>
       {children}
     </AuthContext.Provider>

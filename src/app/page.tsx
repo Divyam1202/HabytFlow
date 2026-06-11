@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
 
 const DynamicResponsiveContainer = dynamic(
@@ -41,8 +42,9 @@ function AnimatedNumber({ value, start }: { value: number, start: boolean }) {
 
 export default function BrutalistDashboard() {
   const { timeFormat } = useSettings()
-  const { gridData, heatmapData, todayHabits, toggleTodayHabit, toggleGridHabit } = useHabitContext()
+  const { gridData, heatmapData, todayHabits, toggleTodayHabit, toggleGridHabit, hasStartedJourney, initializeJourney } = useHabitContext()
   const { isAuthenticated } = useAuth()
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [selectedWeek, setSelectedWeek] = useState<'all' | 1 | 2 | 3 | 4>('all')
   const [animatingCells, setAnimatingCells] = useState<Record<string, boolean>>({})
@@ -157,6 +159,37 @@ export default function BrutalistDashboard() {
   return (
     <>
       {loading && <CanvasLoader onComplete={() => setLoading(false)} />}
+
+      {/* Initialize Journey Overlay */}
+      {isAuthenticated && !hasStartedJourney && !loading && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 transition-all duration-500 animate-in fade-in zoom-in-95">
+          <div className="bg-zinc-950 border border-zinc-800 p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <Rocket className="w-8 h-8 text-white" />
+                <h2 className="text-2xl font-black uppercase tracking-tighter text-white">Initialize Your Journey</h2>
+              </div>
+              
+              <p className="text-zinc-400 text-sm leading-relaxed mb-8">
+                Welcome to HabitFlow. You are currently viewing simulated preview data. To begin tracking your real activity, initialize your profile. This will erase the preview data and prepare a blank slate.
+              </p>
+              
+              <button 
+                onClick={() => {
+                  initializeJourney()
+                  router.push('/settings')
+                }}
+                className="w-full bg-white text-black py-4 font-bold uppercase tracking-widest text-xs hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 group"
+              >
+                Start Tracking & Set Schedule
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={`max-w-[1000px] mx-auto px-6 pt-8 pb-24 space-y-8 ${loading ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100 transition-opacity duration-700'}`}>
 

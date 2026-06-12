@@ -141,31 +141,7 @@ export function TopNav() {
             })}
           </nav>
           
-          <div className="mt-auto border-t border-zinc-900 pt-6">
-            {!isAuthenticated && mounted ? (
-              <button 
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  setShowGatekeeper(true)
-                }}
-                className="w-full text-center py-3 bg-white text-black font-black uppercase tracking-widest text-xs rounded-none transition-colors"
-              >
-                Sign In / Register
-              </button>
-            ) : mounted && (
-              <button 
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  import('@/lib/auth-client').then(({ authClient }) => {
-                    authClient.signOut().then(() => window.location.reload())
-                  })
-                }}
-                className="w-full text-center py-3 border border-red-900/50 text-red-500 font-bold uppercase tracking-widest text-xs hover:bg-red-950/20 transition-colors"
-              >
-                Sign Out
-              </button>
-            )}
-          </div>
+
         </div>
       </>
     </>

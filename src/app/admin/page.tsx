@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import SupportRequest from '@/models/SupportRequest'
 import TelemetryEvent from '@/models/TelemetryEvent'
 import mongoose from 'mongoose'
-import { Users, Activity, Clock, MessageSquare, ShieldAlert, BarChart3, Database } from 'lucide-react'
+import { Users, Activity, Clock, MessageSquare, ShieldAlert, BarChart3, Database, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -162,41 +162,74 @@ export default async function AdminDashboard(props: Props) {
       )}
 
       {activeTab === 'support' && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <h2 className="text-xl font-bold uppercase tracking-tight">Support & Feature Requests</h2>
-          <div className="border border-zinc-800 bg-black overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-zinc-800 bg-zinc-950/50">
-                  <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Date</th>
-                  <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Email</th>
-                  <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Type</th>
-                  <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Message</th>
-                </tr>
-              </thead>
-              <tbody>
-                {supportRequests.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="py-12 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                      No support requests found
-                    </td>
+        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold uppercase tracking-tight flex items-center gap-2 text-red-500">
+              <ShieldAlert size={24} /> Bugs & Issues
+            </h2>
+            <div className="border border-zinc-800 bg-black overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-zinc-800 bg-zinc-950/50">
+                    <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Date</th>
+                    <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Email</th>
+                    <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Message</th>
                   </tr>
-                )}
-                {supportRequests.map(req => (
-                  <tr key={req._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/20 transition-colors">
-                    <td className="py-4 px-6 text-sm text-zinc-500 whitespace-nowrap">{req.createdAt}</td>
-                    <td className="py-4 px-6 text-sm text-white font-medium">{req.email}</td>
-                    <td className="py-4 px-6">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 ${req.type === 'feature_request' ? 'bg-blue-500/10 text-blue-500' : 'bg-red-500/10 text-red-500'}`}>
-                        {req.type.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-zinc-300 max-w-md truncate">{req.message}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {supportRequests.filter(req => req.type === 'issue').length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="py-12 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
+                        No bug reports found
+                      </td>
+                    </tr>
+                  )}
+                  {supportRequests.filter(req => req.type === 'issue').map(req => (
+                    <tr key={req._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/20 transition-colors">
+                      <td className="py-4 px-6 text-sm text-zinc-500 whitespace-nowrap">{req.createdAt}</td>
+                      <td className="py-4 px-6 text-sm text-white font-medium">{req.email}</td>
+                      <td className="py-4 px-6 text-sm text-zinc-300 max-w-md truncate">{req.message}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
+
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold uppercase tracking-tight flex items-center gap-2 text-blue-500">
+              <Sparkles size={24} /> Feature Requests
+            </h2>
+            <div className="border border-zinc-800 bg-black overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-zinc-800 bg-zinc-950/50">
+                    <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Date</th>
+                    <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Email</th>
+                    <th className="py-4 px-6 text-xs font-bold tracking-widest uppercase text-zinc-500">Message</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {supportRequests.filter(req => req.type === 'feature_request').length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="py-12 text-center text-zinc-500 text-xs font-bold uppercase tracking-widest">
+                        No feature requests found
+                      </td>
+                    </tr>
+                  )}
+                  {supportRequests.filter(req => req.type === 'feature_request').map(req => (
+                    <tr key={req._id} className="border-b border-zinc-800/50 hover:bg-zinc-900/20 transition-colors">
+                      <td className="py-4 px-6 text-sm text-zinc-500 whitespace-nowrap">{req.createdAt}</td>
+                      <td className="py-4 px-6 text-sm text-white font-medium">{req.email}</td>
+                      <td className="py-4 px-6 text-sm text-zinc-300 max-w-md truncate">{req.message}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       )}
 

@@ -1,15 +1,24 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Rocket, Send, ArrowLeft, Bug, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/auth-context'
 
 export default function ContactPage() {
   const router = useRouter()
+  const { user } = useAuth()
+  
   const [email, setEmail] = useState('')
   const [type, setType] = useState('issue')
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+  useEffect(() => {
+    if (user?.email) {
+      setEmail(user.email)
+    }
+  }, [user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,7 +35,9 @@ export default function ContactPage() {
 
       if (res.ok) {
         setStatus('success')
-        setEmail('')
+        if (!user?.email) {
+          setEmail('')
+        }
         setMessage('')
       } else {
         setStatus('error')

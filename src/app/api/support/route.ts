@@ -21,6 +21,30 @@ export async function POST(req: NextRequest) {
     
     await newRequest.save()
 
+    // Send email notification to admin
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+      try {
+        const nodemailer = require('nodemailer')
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+          }
+        })
+
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: 'habytflow@gmail.com',
+          subject: `New ${type === 'feature_request' ? 'Feature Request' : 'Bug Report'} from ${email}`,
+          text: `You have received a new support request.\n\nFrom: ${email}\nType: ${type}\n\nMessage:\n${message}`,
+        })
+      } catch (emailError) {
+        console.error('Failed to send email notification:', emailError)
+        // We do not fail the request if the email fails, as it's saved in DB
+      }
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Support request error:', error)

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts'
 
 const DynamicResponsiveContainer = dynamic(
   () => import('recharts').then((mod) => mod.ResponsiveContainer),
@@ -317,6 +317,9 @@ export default function BrutalistDashboard() {
                       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                     }}
                   />
+                  {(selectedWeek === 'all' || selectedWeek === 4) && (
+                    <ReferenceLine x={30} stroke="#52525b" strokeDasharray="3 3" />
+                  )}
                   <Line
                     type="monotone"
                     dataKey="rate"

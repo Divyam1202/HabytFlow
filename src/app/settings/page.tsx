@@ -3,15 +3,24 @@
 import React, { useState, useEffect } from 'react'
 import { Download, LogOut, Trash2, CheckCircle2 } from 'lucide-react'
 import { useSettings } from '@/hooks/useSettings'
+import { useAuth } from '@/contexts/auth-context'
 
 export default function SettingsPage() {
   const { timeFormat, updateTimeFormat } = useSettings()
+  const { user } = useAuth()
 
-  const [username, setUsername] = useState('divyam_1202')
-  const [email, setEmail] = useState('divyam@example.com')
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('********')
   
   const [syncPhase, setSyncPhase] = useState<'idle' | 'loading' | 'success'>('idle')
+
+  useEffect(() => {
+    if (user) {
+      setUsername(user.name || 'divyam_1202')
+      setEmail(user.email || 'divyam@example.com')
+    }
+  }, [user])
 
   const handlePasswordEdit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -144,18 +153,6 @@ export default function SettingsPage() {
                 </div>
                 <Trash2 size={18} className="text-red-900 group-hover:text-red-500" />
               </button>
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xs font-bold tracking-widest uppercase text-zinc-500">Support</h2>
-            <div className="border border-zinc-800 bg-black p-6 flex flex-col gap-4">
-              <a href="/contact" className="flex items-center justify-between p-4 border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-colors text-left">
-                <div>
-                  <div className="font-bold text-white">Contact Us</div>
-                  <div className="text-xs text-zinc-500 mt-1">Submit issues or feature requests directly to the developer.</div>
-                </div>
-              </a>
             </div>
           </section>
 

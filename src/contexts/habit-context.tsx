@@ -117,10 +117,31 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
-    try {
-      const saved = localStorage.getItem(getStorageKey())
-      if (saved) {
-        const parsed = JSON.parse(saved)
+    const loadState = async () => {
+      let parsed = null;
+      
+      if (isAuthenticated) {
+        try {
+          const res = await fetch('/api/user-state');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.stateData) {
+              parsed = JSON.parse(data.stateData);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch remote state", e);
+        }
+      }
+
+      if (!parsed) {
+        try {
+          const saved = localStorage.getItem(getStorageKey())
+          if (saved) parsed = JSON.parse(saved)
+        } catch(e) {}
+      }
+
+      if (parsed) {
         setCurrentSystemDate(parsed.currentSystemDate || getLocalYYYYMMDD())
         setTodayHabits(parsed.todayHabits || [])
         setTodayNutrition(parsed.todayNutrition || INITIAL_NUTRITION)
@@ -137,11 +158,11 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         setHeatmapData(SEED_HEATMAP)
         setHasStartedJourney(false)
       }
-    } catch (e) {
-      console.error("Failed to parse habit state", e)
-    }
-    setMounted(true)
-  }, [user?.id, isLoading])
+      setMounted(true)
+    };
+
+    loadState();
+  }, [user?.id, isLoading, isAuthenticated])
 
   // Persistence & Rollover Check
   useEffect(() => {
@@ -150,9 +171,21 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     const stateToSave = {
       currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData, hasStartedJourney
     }
-    localStorage.setItem(getStorageKey(), JSON.stringify(stateToSave))
+    const stateString = JSON.stringify(stateToSave);
+    localStorage.setItem(getStorageKey(), stateString)
 
-  }, [mounted, isLoading, user?.id, currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData, hasStartedJourney])
+    if (isAuthenticated) {
+      const timer = setTimeout(() => {
+        fetch('/api/user-state', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stateData: stateString })
+        }).catch(e => console.error("Failed to sync remote state", e));
+      }, 1500); // 1.5s debounce
+      
+      return () => clearTimeout(timer);
+    }
+  }, [mounted, isLoading, isAuthenticated, user?.id, currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData, hasStartedJourney])
 
   // Midnight Rollover Engine
   useEffect(() => {

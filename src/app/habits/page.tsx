@@ -19,7 +19,7 @@ export default function HabitsPage() {
   const [category, setCategory] = useState('Fitness')
   const [time, setTime] = useState('')
   const [notification, setNotification] = useState('None')
-  const [frequency, setFrequency] = useState<number[]>([0, 1, 2, 3, 4, 5, 6])
+  const [frequency, setFrequency] = useState<number[]>([])
 
   const DAYS_OF_WEEK = [
     { label: 'S', value: 0 },
@@ -43,7 +43,7 @@ export default function HabitsPage() {
     setCategory('Fitness')
     setTime('')
     setNotification('None')
-    setFrequency([0, 1, 2, 3, 4, 5, 6])
+    setFrequency([])
     setIsEditing(null)
     setShowAddForm(false)
   }
@@ -53,7 +53,7 @@ export default function HabitsPage() {
     setCategory(habit.category || 'Fitness')
     setTime(habit.time || '')
     setNotification(habit.notification || 'None')
-    setFrequency(habit.frequency || [0, 1, 2, 3, 4, 5, 6])
+    setFrequency(habit.frequency || [])
     setIsEditing(habit.id)
     setShowAddForm(true)
   }

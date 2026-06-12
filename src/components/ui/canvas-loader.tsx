@@ -110,7 +110,7 @@ export function CanvasLoader({ onComplete }: CanvasLoaderProps) {
       if (elapsed < T_PHASE2_END) {
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, 1 - (elapsed - T_PHASE1_END)/1000)})`
         const fontFamily = typeof window !== 'undefined' ? getComputedStyle(document.body).getPropertyValue('--font-panchang') || 'sans-serif' : 'sans-serif';
-        ctx.font = `900 48px ${fontFamily}`
+        ctx.font = `900 32px ${fontFamily}`
         ctx.letterSpacing = '2px'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'

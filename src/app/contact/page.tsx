@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Rocket, Send, ArrowLeft } from 'lucide-react'
+import { Rocket, Send, ArrowLeft, Bug, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function ContactPage() {
@@ -100,8 +100,18 @@ export default function ContactPage() {
           </button>
 
           {status === 'success' && (
-            <div className="text-green-500 text-xs font-bold uppercase tracking-widest text-center mt-4">
-              Request sent successfully!
+            <div className="flex flex-col items-center justify-center gap-3 mt-6 p-6 border border-green-900/50 bg-green-950/20 text-green-500 text-xs font-bold uppercase tracking-widest text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {type === 'issue' ? (
+                <>
+                  <Bug size={28} className="animate-bounce text-green-400" />
+                  <span>Stay tuned, your bugs will get fixed soon!</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles size={28} className="animate-pulse text-green-400" />
+                  <span>Stay tuned to see your feature updated!</span>
+                </>
+              )}
             </div>
           )}
           {status === 'error' && (

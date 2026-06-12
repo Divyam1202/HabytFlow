@@ -183,8 +183,8 @@ export function GatekeeperModal() {
         ) : (
           <>
             <div className="text-center space-y-2">
-              <h2 className="text-xl font-black uppercase tracking-tighter text-white font-panchang">
-                {isLogin ? 'Access Restricted' : 'Join HabytFlow'}
+              <h2 className="text-2xl font-black tracking-tighter text-white font-panchang">
+                {isLogin ? 'ACCESS RESTRICTED' : 'Join HabytFLow'}
               </h2>
               <p className="text-zinc-400 text-xs uppercase tracking-widest font-bold">
                 Authentication Required

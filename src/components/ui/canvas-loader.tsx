@@ -110,15 +110,15 @@ export function CanvasLoader({ onComplete }: CanvasLoaderProps) {
       if (elapsed < T_PHASE2_END) {
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, 1 - (elapsed - T_PHASE1_END)/1000)})`
         const fontFamily = typeof window !== 'undefined' ? getComputedStyle(document.body).getPropertyValue('--font-panchang') || 'sans-serif' : 'sans-serif';
-        ctx.font = `800 24px ${fontFamily}`
-        ctx.letterSpacing = '10px'
+        ctx.font = `900 32px ${fontFamily}`
+        ctx.letterSpacing = '2px'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         const pulse = 1 + Math.sin(time * 0.005) * 0.05
         ctx.save()
         ctx.translate(cx, cy)
         ctx.scale(pulse, pulse)
-        ctx.fillText('HABYTFLOW', 0, 0)
+        ctx.fillText('HabytFLow', 0, 0)
         ctx.restore()
       }
       

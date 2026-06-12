@@ -45,11 +45,11 @@ export function TopNav() {
         <div className="max-w-[1400px] w-full mx-auto px-6 flex items-center justify-between">
           
           {/* Logo (All viewports) */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-sm tracking-tight z-50 relative font-panchang uppercase">
+          <Link href="/" className="flex items-center gap-2 font-black text-xl tracking-tighter z-50 relative font-panchang">
             <div className="w-4 h-4 bg-white rounded-[1px] flex items-center justify-center">
               <div className="w-1.5 h-1.5 bg-black rounded-[1px]" />
             </div>
-            HabytFlow
+            HabytFLow
           </Link>
 
           {/* Laptop/Desktop Navigation (min-width: 768px) */}

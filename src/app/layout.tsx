@@ -19,7 +19,7 @@ const panchang = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'HabytFlow | Modern Habit Tracker',
+  title: 'HabytFLow | Modern Habit Tracker',
   description: 'Track your daily habits on a monthly calendar view',
 }
 

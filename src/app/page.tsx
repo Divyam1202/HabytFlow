@@ -138,7 +138,7 @@ export default function BrutalistDashboard() {
                 <h2 className="text-xl font-black uppercase tracking-tighter text-white">Initialize Your Journey</h2>
               </div>
               <p className="text-zinc-400 text-sm leading-relaxed max-w-xl">
-                Welcome to HabytFlow. You are currently viewing simulated preview data. To begin tracking your real activity, initialize your profile. This will erase the preview data and prepare a blank slate.
+                Welcome to HabytFLow. You are currently viewing simulated preview data. To begin tracking your real activity, initialize your profile. This will erase the preview data and prepare a blank slate.
               </p>
             </div>
             <button 

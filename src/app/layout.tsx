@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
@@ -18,9 +18,21 @@ const panchang = localFont({
   display: 'swap',
 })
 
+export const viewport: Viewport = {
+  themeColor: '#000000',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 export const metadata: Metadata = {
   title: 'HabytFLow | Modern Habit Tracker',
   description: 'Track your daily habits on a monthly calendar view',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'HabytFLow',
+  },
 }
 
 export default function RootLayout({

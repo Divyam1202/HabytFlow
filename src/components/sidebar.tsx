@@ -6,6 +6,7 @@ import { LayoutDashboard, CheckSquare, CalendarDays, LineChart, Settings, Sun, M
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/auth-context'
+import { PwaInstallButton } from '@/components/pwa-install-button'
 
 const baseNavItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -53,6 +54,7 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto border-t pt-4">
+        <PwaInstallButton />
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 text-muted-foreground"

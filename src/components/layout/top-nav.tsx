@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Sun, Moon, LayoutDashboard, CheckSquare, Calendar, BarChart2, Settings, Menu, X, ShieldAlert, MessageSquare } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useAuth } from '@/contexts/auth-context'
+import { PwaInstallButton } from '@/components/pwa-install-button'
 
 export function TopNav() {
   const pathname = usePathname()
@@ -141,7 +142,9 @@ export function TopNav() {
             })}
           </nav>
           
-
+          <div className="mt-auto border-t border-zinc-900 pt-6">
+            <PwaInstallButton />
+          </div>
         </div>
       </>
     </>

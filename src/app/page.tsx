@@ -65,10 +65,18 @@ export default function BrutalistDashboard() {
   // Calculate daily completion rate dynamically based on grid state
   const dailyCompletionRate = Array.from({ length: 30 }).map((_, i) => {
     let completedCount = 0
+    let scheduledCount = 0
+    const dateForDay = new Date();
+    dateForDay.setDate(dateForDay.getDate() - (30 - (i + 1)));
+    const dayOfWeek = dateForDay.getDay();
+
     gridData.forEach(habit => {
-      if (habit.days[i]?.completed) completedCount++
+      if (!habit.frequency || habit.frequency.includes(dayOfWeek)) {
+        scheduledCount++;
+        if (habit.days[i]?.completed) completedCount++;
+      }
     })
-    const percentage = gridData.length ? Math.round((completedCount / gridData.length) * 100) : 0
+    const percentage = scheduledCount ? Math.round((completedCount / scheduledCount) * 100) : 0
     return { day: i + 1, rate: percentage }
   })
 
@@ -159,7 +167,13 @@ export default function BrutalistDashboard() {
               </button>
             </div>
           )}
-          {gridData.map(habit => {
+          {gridData.length > 0 && gridData.filter(h => h.frequency ? h.frequency.includes(new Date().getDay()) : true).length === 0 && (
+            <div className="col-span-full border border-zinc-800 bg-zinc-950 p-8 flex flex-col items-center justify-center text-center">
+              <h3 className="text-white text-lg font-bold uppercase tracking-widest mb-2">Rest Day</h3>
+              <p className="text-zinc-500 text-sm">You have no habits scheduled for today.</p>
+            </div>
+          )}
+          {gridData.filter(habit => habit.frequency ? habit.frequency.includes(new Date().getDay()) : true).map(habit => {
             const isCompleted = todayHabits.includes(habit.id);
 
             // Assign brutalist colors based on ID
@@ -238,6 +252,20 @@ export default function BrutalistDashboard() {
                   </td>
                   {habit.days.map((d, index) => {
                     const isAnimating = animatingCells[`${habit.id}-${d.day}`]
+                    const dateForDay = new Date();
+                    dateForDay.setDate(dateForDay.getDate() - (30 - d.day));
+                    const isScheduled = habit.frequency ? habit.frequency.includes(dateForDay.getDay()) : true;
+
+                    if (!isScheduled) {
+                      return (
+                        <td key={d.day || index} className="text-center p-0.5">
+                          <div className="mx-auto w-4 h-4 flex items-center justify-center rounded-[1px] bg-transparent opacity-20 cursor-not-allowed">
+                            <div className="w-[3px] h-[3px] bg-zinc-700 rounded-full" />
+                          </div>
+                        </td>
+                      )
+                    }
+
                     return (
                       <td key={d.day || index} className="text-center p-0.5 cursor-pointer" onClick={() => toggleDay(habit.id, d.day)}>
                         <div className={`mx-auto w-4 h-4 flex items-center justify-center rounded-[1px] transition-all duration-100 ease-out group ${isAnimating ? 'scale-[2] bg-white rotate-12 shadow-[0_0_15px_rgba(255,255,255,0.8)] z-10 relative' : d.completed ? 'bg-white text-black hover:opacity-80' : 'bg-transparent border border-zinc-800 text-zinc-500 hover:bg-zinc-800 hover:text-white hover:scale-105'}`}>

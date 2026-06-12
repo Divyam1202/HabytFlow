@@ -71,6 +71,17 @@ export default function AnalyticsPage() {
   // --- Metrics Calculations ---
   const monthlyTotalCompletedDays = gridData.reduce((acc, habit) => acc + habit.days.filter(d => d.completed).length, 0);
 
+  let totalScheduledDays = 0;
+  gridData.forEach(habit => {
+    habit.days.forEach(d => {
+      const dateForDay = new Date();
+      dateForDay.setDate(dateForDay.getDate() - (30 - d.day));
+      if (!habit.frequency || habit.frequency.includes(dateForDay.getDay())) {
+        totalScheduledDays++;
+      }
+    });
+  });
+
   const activeDaysArray = Array.from({ length: 30 }).map((_, i) => {
     return gridData.some(habit => habit.days[i]?.completed);
   });
@@ -165,7 +176,7 @@ export default function AnalyticsPage() {
             <h3 className="text-[10px] font-bold uppercase tracking-widest text-white mb-2">Monthly Stats</h3>
             <div className="space-y-4 flex-1 flex flex-col justify-center">
               <div>
-                <div className="text-2xl font-black text-white tabular-nums">{Math.round((monthlyTotalCompletedDays / (gridData.length * 30 || 1)) * 100)}%</div>
+                <div className="text-2xl font-black text-white tabular-nums">{Math.round((monthlyTotalCompletedDays / (totalScheduledDays || 1)) * 100)}%</div>
                 <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Completion Rate</div>
               </div>
               <div>

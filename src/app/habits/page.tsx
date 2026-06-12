@@ -17,16 +17,33 @@ export default function HabitsPage() {
   // Form State
   const [name, setName] = useState('')
   const [category, setCategory] = useState('Fitness')
-  const [goal, setGoal] = useState('Daily')
   const [time, setTime] = useState('')
   const [notification, setNotification] = useState('None')
+  const [frequency, setFrequency] = useState<number[]>([0, 1, 2, 3, 4, 5, 6])
+
+  const DAYS_OF_WEEK = [
+    { label: 'S', value: 0 },
+    { label: 'M', value: 1 },
+    { label: 'T', value: 2 },
+    { label: 'W', value: 3 },
+    { label: 'T', value: 4 },
+    { label: 'F', value: 5 },
+    { label: 'S', value: 6 },
+  ]
+
+  const getFrequencyLabel = (freq: number[]) => {
+    if (freq.length === 7) return 'Daily';
+    if (freq.length === 0) return 'None';
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return freq.sort().map(d => days[d]).join(', ');
+  }
 
   const resetForm = () => {
     setName('')
     setCategory('Fitness')
-    setGoal('Daily')
     setTime('')
     setNotification('None')
+    setFrequency([0, 1, 2, 3, 4, 5, 6])
     setIsEditing(null)
     setShowAddForm(false)
   }
@@ -34,9 +51,9 @@ export default function HabitsPage() {
   const handleEdit = (habit: any) => {
     setName(habit.name || '')
     setCategory(habit.category || 'Fitness')
-    setGoal(habit.goal || 'Daily')
     setTime(habit.time || '')
     setNotification(habit.notification || 'None')
+    setFrequency(habit.frequency || [0, 1, 2, 3, 4, 5, 6])
     setIsEditing(habit.id)
     setShowAddForm(true)
   }
@@ -49,10 +66,12 @@ export default function HabitsPage() {
     e.preventDefault()
     if (!name.trim()) return
 
+    const goal = getFrequencyLabel(frequency);
+
     if (isEditing) {
-      editHabit(isEditing, { name, category, goal, time, notification })
+      editHabit(isEditing, { name, category, goal, time, notification, frequency })
     } else {
-      addHabit({ name, category, goal, streak: 0, time, notification })
+      addHabit({ name, category, goal, streak: 0, time, notification, frequency })
     }
     resetForm()
   }
@@ -159,15 +178,30 @@ export default function HabitsPage() {
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Goal Frequency</label>
-                  <select
-                    value={goal}
-                    onChange={e => setGoal(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 p-3 text-white focus:outline-none focus:border-zinc-500 appearance-none"
-                  >
-                    <option>Daily</option>
-                    <option>Weekdays</option>
-                    <option>Weekends</option>
-                  </select>
+                  <div className="flex gap-1 border border-zinc-800 bg-zinc-950 p-1">
+                    {DAYS_OF_WEEK.map(day => {
+                      const isSelected = frequency.includes(day.value);
+                      return (
+                        <button
+                          key={day.value}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setFrequency(frequency.filter(d => d !== day.value))
+                            } else {
+                              setFrequency([...frequency, day.value])
+                            }
+                          }}
+                          className={`flex-1 py-1.5 text-xs font-bold uppercase transition-colors rounded-[1px] ${isSelected ? 'bg-white text-black' : 'text-zinc-500 hover:bg-zinc-900 hover:text-white'}`}
+                        >
+                          {day.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <div className="text-[9px] text-zinc-500 font-medium uppercase tracking-widest mt-2 px-1">
+                    Current: {getFrequencyLabel(frequency)}
+                  </div>
                 </div>
               </div>
 

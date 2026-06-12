@@ -16,7 +16,7 @@ export type ActivityState = {
   hrAverage: number | null;
 }
 
-export type HabitDef = { id: number; name: string; category: string; time: string; notification?: string; goal?: string; streak?: number; }
+export type HabitDef = { id: number; name: string; category: string; time: string; notification?: string; goal?: string; streak?: number; frequency?: number[]; }
 export type GridHabit = HabitDef & { days: {day: number; completed: boolean}[] }
 
 export type HabitContextType = {
@@ -53,11 +53,11 @@ export const useHabitContext = () => {
 
 // --- Initial Seed Data ---
 const MOCK_HABITS: HabitDef[] = [
-  { id: 1, name: "Gym", category: "Fitness", time: "18:00" },
-  { id: 2, name: "Reading", category: "Mind", time: "21:30" },
-  { id: 3, name: "Coding", category: "Work", time: "09:00" },
-  { id: 4, name: "Meditation", category: "Mind", time: "07:00" },
-  { id: 5, name: "No Spend", category: "Finance", time: "" }
+  { id: 1, name: "Gym", category: "Fitness", time: "18:00", frequency: [1, 3, 5] },
+  { id: 2, name: "Reading", category: "Mind", time: "21:30", frequency: [0, 1, 2, 3, 4, 5, 6] },
+  { id: 3, name: "Coding", category: "Work", time: "09:00", frequency: [1, 2, 3, 4, 5] },
+  { id: 4, name: "Meditation", category: "Mind", time: "07:00", frequency: [0, 1, 2, 3, 4, 5, 6] },
+  { id: 5, name: "No Spend", category: "Finance", time: "", frequency: [0, 1, 2, 3, 4, 5, 6] }
 ]
 
 const SEED_GRID_DATA = MOCK_HABITS.map(habit => ({

@@ -109,7 +109,8 @@ export function CanvasLoader({ onComplete }: CanvasLoaderProps) {
       // Draw Center Text
       if (elapsed < T_PHASE2_END) {
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, 1 - (elapsed - T_PHASE1_END)/1000)})`
-        ctx.font = '800 24px sans-serif'
+        const fontFamily = typeof window !== 'undefined' ? getComputedStyle(document.body).getPropertyValue('--font-panchang') || 'sans-serif' : 'sans-serif';
+        ctx.font = `800 24px ${fontFamily}`
         ctx.letterSpacing = '10px'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'

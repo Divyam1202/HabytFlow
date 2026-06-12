@@ -22,7 +22,7 @@ import { useAuth } from '@/contexts/auth-context'
 export default function BrutalistDashboard() {
   const { timeFormat } = useSettings()
   const { gridData, heatmapData, todayHabits, toggleTodayHabit, toggleGridHabit, hasStartedJourney, initializeJourney } = useHabitContext()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [selectedWeek, setSelectedWeek] = useState<'all' | 1 | 2 | 3 | 4>('all')
@@ -126,7 +126,7 @@ export default function BrutalistDashboard() {
     <>
       {loading && <CanvasLoader onComplete={() => setLoading(false)} />}
 
-      <div className={`max-w-[1000px] mx-auto px-6 pt-8 pb-24 space-y-8 ${loading ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100 transition-opacity duration-700'}`}>
+      <div className={`max-w-[1000px] mx-auto px-6 pt-8 pb-24 space-y-8 ${(loading || authLoading) ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100 transition-opacity duration-700'}`}>
       
         {/* Initialize Journey Banner */}
         {isAuthenticated && !hasStartedJourney && !loading && (

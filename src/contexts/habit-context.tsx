@@ -154,9 +154,18 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         setTodayHabits([])
         setTodayNutrition(INITIAL_NUTRITION)
         setTodayActivity(INITIAL_ACTIVITY)
-        setGridData(SEED_GRID_DATA)
-        setHeatmapData(SEED_HEATMAP)
-        setHasStartedJourney(false)
+        
+        if (isAuthenticated) {
+          // Brand new account -> auto initialize with a fresh slate
+          setGridData([])
+          setHeatmapData(Array.from({ length: 364 }).map((_, i) => ({ id: i, count: 0 })))
+          setHasStartedJourney(true)
+        } else {
+          // Unauthenticated guest -> show preview data
+          setGridData(SEED_GRID_DATA)
+          setHeatmapData(SEED_HEATMAP)
+          setHasStartedJourney(false)
+        }
       }
       setMounted(true)
     };

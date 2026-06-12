@@ -122,7 +122,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
       
       if (isAuthenticated) {
         try {
-          const res = await fetch('/api/user-state');
+          const res = await fetch('/api/user-state', { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
             if (data.stateData) {

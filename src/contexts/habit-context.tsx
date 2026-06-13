@@ -153,9 +153,9 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         setTodayActivity(INITIAL_ACTIVITY)
         
         if (isAuthenticated) {
-          // Brand new account -> auto initialize with the seed data so it looks good out of the box
-          setGridData(SEED_GRID_DATA)
-          setHeatmapData(SEED_HEATMAP)
+          // Brand new account -> start with a clean slate
+          setGridData([])
+          setHeatmapData(Array.from({ length: 364 }).map((_, i) => ({ id: i, count: 0 })))
         } else {
           // Unauthenticated guest -> show preview data with some habits already ticked for demonstration
           setGridData(SEED_GRID_DATA)

@@ -12,6 +12,7 @@ const DynamicResponsiveContainer = dynamic(
 import { Check, Flame, Rocket, ChevronLeft, ChevronRight, Minus } from 'lucide-react'
 import { NutritionTracker } from '@/components/dashboard/nutrition-tracker'
 import { ActivityMetricsTracker } from '@/components/dashboard/activity-metrics-tracker'
+import { HabitGridTrend } from '@/components/dashboard/habit-grid-trend'
 import { CanvasLoader } from '@/components/ui/canvas-loader'
 import { useSettings, formatTime } from '@/hooks/useSettings'
 import { useHabitContext } from '@/contexts/habit-context'
@@ -217,83 +218,39 @@ export default function BrutalistDashboard() {
         {/* Activity Metrics (Sports & HR) */}
         <ActivityMetricsTracker />
 
-        {/* Compressed Monthly Habit Matrix */}
-        <div className="overflow-x-auto bg-black p-4 border border-zinc-900 rounded-[1px]">
-          <table className="w-full border-collapse text-left">
-            <thead>
-              <tr className="text-zinc-500">
-                <th className="font-bold py-2 pr-4 uppercase tracking-wider w-40 text-[10px]">Habit</th>
-                {Array.from({ length: 30 }).map((_, i) => (
-                  <th key={i} className="font-normal w-5 text-center text-[9px] pb-2">{i + 1}</th>
-                ))}
-                <th className="font-bold py-2 pl-4 uppercase tracking-wider text-right text-[10px] w-20">Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {gridData.length === 0 && (
-                <tr>
-                  <td colSpan={32} className="text-center text-zinc-600 text-xs py-8 uppercase tracking-widest">No tracking data available</td>
-                </tr>
-              )}
-              {gridData.map((habit) => (
-                <tr key={habit.id}>
-                  <td className="py-1.5 pr-4">
-                    <div className="flex items-center gap-2">
-                      <div className="grid grid-cols-2 gap-0.5">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                          <div key={i} className={`w-[3px] h-[3px] ${getStatusColor(habit.days)}`} />
-                        ))}
-                      </div>
-                      <div>
-                        <div className="font-bold text-white text-xs leading-none">{habit.name}</div>
-                        <div className="text-[9px] text-zinc-600 mt-0.5 uppercase tracking-wider">{habit.category}</div>
-                      </div>
-                    </div>
-                  </td>
-                  {habit.days.map((d, index) => {
-                    const isAnimating = animatingCells[`${habit.id}-${d.day}`]
-                    const dateForDay = new Date();
-                    dateForDay.setDate(dateForDay.getDate() - (30 - d.day));
-                    const isScheduled = habit.frequency ? habit.frequency.includes(dateForDay.getDay()) : true;
+        {/* 30-Day Grid Trend Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {gridData.length === 0 && (
+            <div className="col-span-full border border-zinc-800 bg-zinc-950 p-8 flex flex-col items-center justify-center text-center">
+              <h3 className="text-white text-lg font-bold uppercase tracking-widest mb-2">No Tracking Data</h3>
+              <p className="text-zinc-500 text-sm mb-6">Add habits to see your 30-day trends.</p>
+            </div>
+          )}
+          {gridData.map(habit => {
+            // Assign brutalist colors based on ID
+            let colorClass = "";
+            if (habit.id === 1) colorClass = "bg-[#ef4444]";
+            else if (habit.id === 2) colorClass = "bg-[#3b82f6]";
+            else if (habit.id === 3) colorClass = "bg-[#eab308]";
+            else if (habit.id === 4) colorClass = "bg-[#a855f7]";
+            else colorClass = "bg-[#22c55e]";
 
-                    if (!isScheduled) {
-                      return (
-                        <td key={d.day || index} className="text-center p-0.5">
-                          <div className="mx-auto w-4 h-4 flex items-center justify-center rounded-[1px] bg-transparent opacity-20 cursor-not-allowed">
-                            <div className="w-[3px] h-[3px] bg-zinc-700 rounded-full" />
-                          </div>
-                        </td>
-                      )
-                    }
+            const completedDays = habit.days.filter(d => d.completed).map(d => d.day);
 
-                    return (
-                      <td key={d.day || index} className="text-center p-0.5 cursor-pointer" onClick={() => toggleDay(habit.id, d.day)}>
-                        <div className={`mx-auto w-4 h-4 flex items-center justify-center rounded-[1px] transition-all duration-100 ease-out group ${isAnimating ? 'scale-[2] bg-white rotate-12 shadow-[0_0_15px_rgba(255,255,255,0.8)] z-10 relative' : d.completed ? 'bg-white text-black hover:opacity-80' : 'bg-transparent border border-zinc-800 text-zinc-500 hover:bg-zinc-800 hover:text-white hover:scale-105'}`}>
-                          {d.completed ? (
-                            <>
-                              <Check strokeWidth={4} size={isAnimating ? 6 : 10} className="transition-all group-hover:hidden" />
-                              <Minus strokeWidth={4} size={10} className="hidden group-hover:block transition-all" />
-                            </>
-                          ) : (
-                            <span className="text-[8px]">{d.day}</span>
-                          )}
-                        </div>
-                      </td>
-                    )
-                  })}
-                  <td className="pl-4 text-right">
-                    {habit.time ? (
-                      <div className="inline-block text-[11px] font-black text-white bg-zinc-800 border border-zinc-700 px-2 py-0.5 rounded-[1px]">
-                        {formatTime(habit.time, timeFormat)}
-                      </div>
-                    ) : (
-                      <span className="text-[10px] text-zinc-700 font-bold tracking-widest">--:--</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            return (
+              <HabitGridTrend
+                key={habit.id}
+                habitId={habit.id}
+                habitName={habit.name}
+                habitCategory={habit.category}
+                habitTime={habit.time ? formatTime(habit.time, timeFormat) : null}
+                habitColor={colorClass}
+                completedDays={completedDays}
+                totalDays={30}
+                onToggleDay={toggleDay}
+              />
+            )
+          })}
         </div>
 
         {/* Charts Row */}

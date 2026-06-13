@@ -91,16 +91,16 @@ export function NutritionTracker() {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         
         {/* Hydration Tracker */}
-        <div className="border border-zinc-800 bg-black p-4 md:p-6 flex flex-col justify-between gap-4 md:gap-6 relative group transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:border-zinc-700">
+        <div className="border border-zinc-800 bg-black p-3 md:p-6 flex flex-col justify-between gap-3 md:gap-6 relative group transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:border-zinc-700">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <h3 className="text-[10px] md:text-sm font-bold uppercase tracking-wider text-white flex items-center gap-1.5 md:gap-2 leading-tight">
                 <Droplet size={16} /> Hydration
               </h3>
-              <p className="text-xs text-zinc-500 mt-1">Goal: {hydrationGoal}ml</p>
+              <p className="text-[9px] md:text-xs text-zinc-500 mt-0.5 md:mt-1">Goal: {hydrationGoal}ml</p>
             </div>
             <button onClick={() => openModal('hydration', 'goal')} className="flex flex-col items-center gap-1 text-zinc-500 hover:text-black hover:bg-white p-1 rounded-[1px] transition-all duration-150 group/target mt-1" title="Set Limit">
               <Target size={14} className="group-hover/target:text-black" />
@@ -108,20 +108,20 @@ export function NutritionTracker() {
             </button>
           </div>
 
-          <div className="text-3xl md:text-4xl font-black tracking-tighter tabular-nums text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] transition-all duration-150">
-            {hydration} <span className="text-xl text-zinc-600">/ {hydrationGoal} ml</span>
+          <div className="text-xl md:text-4xl font-black tracking-tighter tabular-nums text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] transition-all duration-150">
+            {hydration} <span className="text-[10px] md:text-xl text-zinc-600">/ {hydrationGoal} ml</span>
           </div>
 
           <div className="space-y-2">
             <button 
               onClick={() => openModal('hydration', 'add')}
-              className="h-10 md:h-12 w-full border border-zinc-800 hover:border-white hover:bg-white hover:text-black text-white flex items-center justify-center gap-2 transition-all duration-150 font-bold uppercase text-sm"
+              className="h-8 md:h-12 w-full border border-zinc-800 hover:border-white hover:bg-white hover:text-black text-white flex items-center justify-center gap-1 md:gap-2 transition-all duration-150 font-bold uppercase text-[9px] md:text-sm"
             >
               <Plus size={18} /> Add ML
             </button>
             <button 
               onClick={() => openModal('hydration', 'edit')}
-              className="h-8 w-full text-zinc-500 hover:bg-white hover:text-black transition-all duration-150 font-bold uppercase text-xs tracking-wider rounded-[1px]"
+              className="h-6 md:h-8 w-full text-zinc-500 hover:bg-white hover:text-black transition-all duration-150 font-bold uppercase text-[8px] md:text-xs tracking-wider rounded-[1px]"
             >
               Edit Value
             </button>
@@ -129,13 +129,13 @@ export function NutritionTracker() {
         </div>
 
         {/* Calories Tracker */}
-        <div className="border border-zinc-800 bg-black p-4 md:p-6 flex flex-col justify-between gap-4 md:gap-6 relative group transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:border-zinc-700">
+        <div className="border border-zinc-800 bg-black p-3 md:p-6 flex flex-col justify-between gap-3 md:gap-6 relative group transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:border-zinc-700">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <h3 className="text-[10px] md:text-sm font-bold uppercase tracking-wider text-white flex items-center gap-1.5 md:gap-2 leading-tight">
                 <FlameIcon size={16} /> Calories
               </h3>
-              <p className="text-xs text-zinc-500 mt-1">Goal: {caloriesGoal}kcal</p>
+              <p className="text-[9px] md:text-xs text-zinc-500 mt-0.5 md:mt-1">Goal: {caloriesGoal}kcal</p>
             </div>
             <button onClick={() => openModal('calories', 'goal')} className="flex flex-col items-center gap-1 text-zinc-500 hover:text-black hover:bg-white p-1 rounded-[1px] transition-all duration-150 group/target mt-1" title="Set Limit">
               <Target size={14} className="group-hover/target:text-black" />
@@ -143,20 +143,20 @@ export function NutritionTracker() {
             </button>
           </div>
 
-          <div className="text-3xl md:text-4xl font-black tracking-tighter tabular-nums text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] transition-all duration-150">
-            {calories} <span className="text-xl text-zinc-600">/ {caloriesGoal}</span>
+          <div className="text-xl md:text-4xl font-black tracking-tighter tabular-nums text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] transition-all duration-150">
+            {calories} <span className="text-[10px] md:text-xl text-zinc-600">/ {caloriesGoal}</span>
           </div>
 
           <div className="space-y-2">
             <button 
               onClick={() => openModal('calories', 'add')}
-              className="h-10 md:h-12 w-full border border-zinc-800 hover:border-white hover:bg-white hover:text-black text-white flex items-center justify-center gap-2 transition-all duration-150 font-bold uppercase text-sm"
+              className="h-8 md:h-12 w-full border border-zinc-800 hover:border-white hover:bg-white hover:text-black text-white flex items-center justify-center gap-1 md:gap-2 transition-all duration-150 font-bold uppercase text-[9px] md:text-sm"
             >
               <Plus size={18} /> Add Kcal
             </button>
             <button 
               onClick={() => openModal('calories', 'edit')}
-              className="h-8 w-full text-zinc-500 hover:bg-white hover:text-black transition-all duration-150 font-bold uppercase text-xs tracking-wider rounded-[1px]"
+              className="h-6 md:h-8 w-full text-zinc-500 hover:bg-white hover:text-black transition-all duration-150 font-bold uppercase text-[8px] md:text-xs tracking-wider rounded-[1px]"
             >
               Edit Value
             </button>
@@ -164,13 +164,13 @@ export function NutritionTracker() {
         </div>
 
         {/* Protein Tracker */}
-        <div className="border border-zinc-800 bg-black p-4 md:p-6 flex flex-col justify-between gap-4 md:gap-6 relative group transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:border-zinc-700">
+        <div className="border border-zinc-800 bg-black p-3 md:p-6 flex flex-col justify-between gap-3 md:gap-6 relative group transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:border-zinc-700">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <h3 className="text-[10px] md:text-sm font-bold uppercase tracking-wider text-white flex items-center gap-1.5 md:gap-2 leading-tight">
                 <Beef size={16} /> Protein
               </h3>
-              <p className="text-xs text-zinc-500 mt-1">Goal: {proteinGoal}g</p>
+              <p className="text-[9px] md:text-xs text-zinc-500 mt-0.5 md:mt-1">Goal: {proteinGoal}g</p>
             </div>
             <button onClick={() => openModal('protein', 'goal')} className="flex flex-col items-center gap-1 text-zinc-500 hover:text-black hover:bg-white p-1 rounded-[1px] transition-all duration-150 group/target mt-1" title="Set Limit">
               <Target size={14} className="group-hover/target:text-black" />
@@ -178,20 +178,20 @@ export function NutritionTracker() {
             </button>
           </div>
 
-          <div className="text-3xl md:text-4xl font-black tracking-tighter tabular-nums text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] transition-all duration-150">
-            {protein} <span className="text-xl text-zinc-600">/ {proteinGoal} g</span>
+          <div className="text-xl md:text-4xl font-black tracking-tighter tabular-nums text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] transition-all duration-150">
+            {protein} <span className="text-[10px] md:text-xl text-zinc-600">/ {proteinGoal} g</span>
           </div>
 
           <div className="space-y-2">
             <button 
               onClick={() => openModal('protein', 'add')}
-              className="h-10 md:h-12 w-full border border-zinc-800 hover:border-white hover:bg-white hover:text-black text-white flex items-center justify-center gap-2 transition-all duration-150 font-bold uppercase text-sm"
+              className="h-8 md:h-12 w-full border border-zinc-800 hover:border-white hover:bg-white hover:text-black text-white flex items-center justify-center gap-1 md:gap-2 transition-all duration-150 font-bold uppercase text-[9px] md:text-sm"
             >
               <Plus size={18} /> Add Protein
             </button>
             <button 
               onClick={() => openModal('protein', 'edit')}
-              className="h-8 w-full text-zinc-500 hover:bg-white hover:text-black transition-all duration-150 font-bold uppercase text-xs tracking-wider rounded-[1px]"
+              className="h-6 md:h-8 w-full text-zinc-500 hover:bg-white hover:text-black transition-all duration-150 font-bold uppercase text-[8px] md:text-xs tracking-wider rounded-[1px]"
             >
               Edit Value
             </button>
@@ -199,13 +199,13 @@ export function NutritionTracker() {
         </div>
 
         {/* Carbs Tracker */}
-        <div className="border border-zinc-800 bg-black p-4 md:p-6 flex flex-col justify-between gap-4 md:gap-6 relative group transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:border-zinc-700">
+        <div className="border border-zinc-800 bg-black p-3 md:p-6 flex flex-col justify-between gap-3 md:gap-6 relative group transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:border-zinc-700">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+              <h3 className="text-[10px] md:text-sm font-bold uppercase tracking-wider text-white flex items-center gap-1.5 md:gap-2 leading-tight">
                 <Wheat size={16} /> Carbs
               </h3>
-              <p className="text-xs text-zinc-500 mt-1">Goal: {carbsGoal}g</p>
+              <p className="text-[9px] md:text-xs text-zinc-500 mt-0.5 md:mt-1">Goal: {carbsGoal}g</p>
             </div>
             <button onClick={() => openModal('carbs', 'goal')} className="flex flex-col items-center gap-1 text-zinc-500 hover:text-black hover:bg-white p-1 rounded-[1px] transition-all duration-150 group/target mt-1" title="Set Limit">
               <Target size={14} className="group-hover/target:text-black" />
@@ -213,20 +213,20 @@ export function NutritionTracker() {
             </button>
           </div>
 
-          <div className="text-3xl md:text-4xl font-black tracking-tighter tabular-nums text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] transition-all duration-150">
-            {carbs} <span className="text-xl text-zinc-600">/ {carbsGoal} g</span>
+          <div className="text-xl md:text-4xl font-black tracking-tighter tabular-nums text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] transition-all duration-150">
+            {carbs} <span className="text-[10px] md:text-xl text-zinc-600">/ {carbsGoal} g</span>
           </div>
 
           <div className="space-y-2">
             <button 
               onClick={() => openModal('carbs', 'add')}
-              className="h-10 md:h-12 w-full border border-zinc-800 hover:border-white hover:bg-white hover:text-black text-white flex items-center justify-center gap-2 transition-all duration-150 font-bold uppercase text-sm"
+              className="h-8 md:h-12 w-full border border-zinc-800 hover:border-white hover:bg-white hover:text-black text-white flex items-center justify-center gap-1 md:gap-2 transition-all duration-150 font-bold uppercase text-[9px] md:text-sm"
             >
               <Plus size={18} /> Add Carbs
             </button>
             <button 
               onClick={() => openModal('carbs', 'edit')}
-              className="h-8 w-full text-zinc-500 hover:bg-white hover:text-black transition-all duration-150 font-bold uppercase text-xs tracking-wider rounded-[1px]"
+              className="h-6 md:h-8 w-full text-zinc-500 hover:bg-white hover:text-black transition-all duration-150 font-bold uppercase text-[8px] md:text-xs tracking-wider rounded-[1px]"
             >
               Edit Value
             </button>

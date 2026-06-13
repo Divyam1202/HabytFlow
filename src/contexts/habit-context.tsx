@@ -35,12 +35,10 @@ export type HabitContextType = {
   
   heatmapData: Array<{ id: number; count: number }>;
   
-  hasStartedJourney: boolean;
-  initializeJourney: () => void;
-  
   addHabit: (habit: Omit<HabitDef, 'id'>) => void;
   editHabit: (id: number, habit: Partial<HabitDef>) => void;
   deleteHabit: (id: number) => void;
+  isMounted: boolean;
 }
 
 const HabitContext = createContext<HabitContextType | null>(null)
@@ -64,7 +62,8 @@ const SEED_GRID_DATA = MOCK_HABITS.map(habit => ({
   ...habit,
   days: Array.from({ length: 30 }).map((_, i) => ({
     day: i + 1,
-    completed: (i + habit.id) % 3 === 0 || (i + habit.id) % 7 === 0
+    // Ensure Day 30 is strictly false to sync properly with an empty `todayHabits` array on initial load
+    completed: i === 29 ? false : ((i + habit.id) % 3 === 0 || (i + habit.id) % 7 === 0)
   }))
 }))
 
@@ -109,7 +108,6 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   
   const [gridData, setGridData] = useState<GridHabit[]>(SEED_GRID_DATA)
   const [heatmapData, setHeatmapData] = useState<{id: number, count: number}[]>(SEED_HEATMAP)
-  const [hasStartedJourney, setHasStartedJourney] = useState<boolean>(false)
 
   const getStorageKey = () => user?.id ? `habitflow_state_${user.id}` : 'habitflow_state'
 
@@ -148,7 +146,6 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         setTodayActivity(parsed.todayActivity || INITIAL_ACTIVITY)
         setGridData(parsed.gridData || SEED_GRID_DATA)
         setHeatmapData(parsed.heatmapData || SEED_HEATMAP)
-        setHasStartedJourney(!!parsed.hasStartedJourney)
       } else {
         setCurrentSystemDate(getLocalYYYYMMDD())
         setTodayHabits([])
@@ -156,15 +153,13 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         setTodayActivity(INITIAL_ACTIVITY)
         
         if (isAuthenticated) {
-          // Brand new account -> auto initialize with a fresh slate
-          setGridData([])
-          setHeatmapData(Array.from({ length: 364 }).map((_, i) => ({ id: i, count: 0 })))
-          setHasStartedJourney(true)
+          // Brand new account -> auto initialize with the seed data so it looks good out of the box
+          setGridData(SEED_GRID_DATA)
+          setHeatmapData(SEED_HEATMAP)
         } else {
           // Unauthenticated guest -> show preview data
           setGridData(SEED_GRID_DATA)
           setHeatmapData(SEED_HEATMAP)
-          setHasStartedJourney(false)
         }
       }
       setMounted(true)
@@ -178,7 +173,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     if (!mounted || isLoading) return
 
     const stateToSave = {
-      currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData, hasStartedJourney
+      currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData
     }
     const stateString = JSON.stringify(stateToSave);
     localStorage.setItem(getStorageKey(), stateString)
@@ -194,7 +189,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
       
       return () => clearTimeout(timer);
     }
-  }, [mounted, isLoading, isAuthenticated, user?.id, currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData, hasStartedJourney])
+  }, [mounted, isLoading, isAuthenticated, user?.id, currentSystemDate, todayHabits, todayNutrition, todayActivity, gridData, heatmapData])
 
   // Midnight Rollover Engine
   useEffect(() => {
@@ -252,29 +247,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     }
   }, [mounted, currentSystemDate, todayHabits])
 
-  const initializeJourney = () => {
-    requireAuth(() => {
-      setHasStartedJourney(true)
-      // Reset grid completely
-      setGridData([])
-      // Reset heatmap
-      setHeatmapData(Array.from({ length: 364 }).map((_, i) => ({ id: i, count: 0 })))
-      // Reset today
-      setTodayHabits([])
-      setTodayNutrition(INITIAL_NUTRITION)
-      setTodayActivity(INITIAL_ACTIVITY)
-      
-      // Fire-and-forget telemetry
-      fetch('/api/telemetry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventType: 'journey_started', metadata: {} })
-      }).catch(console.error)
-    })
-  }
-
   const toggleTodayHabit = (id: number) => {
-    if (isAuthenticated && !hasStartedJourney) return;
     requireAuth(() => {
       const isCompleting = !todayHabits.includes(id);
       setTodayHabits(prev => isCompleting ? [...prev, id] : prev.filter(x => x !== id))
@@ -297,14 +270,13 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         if (h.id !== id) return h
         const newDays = [...h.days]
         const lastIdx = newDays.length - 1
-        newDays[lastIdx] = { ...newDays[lastIdx], completed: !newDays[lastIdx].completed }
+        newDays[lastIdx] = { ...newDays[lastIdx], completed: isCompleting }
         return { ...h, days: newDays }
       }))
     })
   }
 
   const toggleGridHabit = (habitId: number, dayNum: number) => {
-    if (isAuthenticated && !hasStartedJourney) return;
     requireAuth(() => {
       setGridData(prev => prev.map(h => {
         if (h.id !== habitId) return h
@@ -317,12 +289,10 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   }
 
   const updateNutritionWrapped = (updater: (prev: NutritionState) => NutritionState) => {
-    if (isAuthenticated && !hasStartedJourney) return;
     requireAuth(() => setTodayNutrition(updater))
   }
 
   const updateActivityWrapped = (updater: (prev: ActivityState) => ActivityState) => {
-    if (isAuthenticated && !hasStartedJourney) return;
     requireAuth(() => setTodayActivity(updater))
   }
 
@@ -366,11 +336,10 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
       todayActivity, updateActivity: updateActivityWrapped,
       gridData, toggleGridHabit,
       heatmapData,
-      hasStartedJourney,
-      initializeJourney,
       addHabit,
       editHabit,
-      deleteHabit
+      deleteHabit,
+      isMounted: mounted
     }}>
       {children}
     </HabitContext.Provider>

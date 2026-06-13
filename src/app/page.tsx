@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts'
-
+import { motion, AnimatePresence } from 'framer-motion'
 const DynamicResponsiveContainer = dynamic(
   () => import('recharts').then((mod) => mod.ResponsiveContainer),
   { ssr: false }
@@ -12,7 +12,7 @@ const DynamicResponsiveContainer = dynamic(
 import { Check, Flame, Rocket, ChevronLeft, ChevronRight, Minus } from 'lucide-react'
 import { NutritionTracker } from '@/components/dashboard/nutrition-tracker'
 import { ActivityMetricsTracker } from '@/components/dashboard/activity-metrics-tracker'
-import { HabitGridTrend } from '@/components/dashboard/habit-grid-trend'
+import { UnifiedHabitCalendar } from '@/components/dashboard/unified-habit-calendar'
 import { CanvasLoader } from '@/components/ui/canvas-loader'
 import { useSettings, formatTime } from '@/hooks/useSettings'
 import { useHabitContext } from '@/contexts/habit-context'
@@ -22,7 +22,7 @@ import { useAuth } from '@/contexts/auth-context'
 
 export default function BrutalistDashboard() {
   const { timeFormat } = useSettings()
-  const { gridData, heatmapData, todayHabits, toggleTodayHabit, toggleGridHabit, hasStartedJourney, initializeJourney } = useHabitContext()
+  const { gridData, todayHabits, toggleTodayHabit, toggleGridHabit, heatmapData, isMounted } = useHabitContext()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -63,27 +63,49 @@ export default function BrutalistDashboard() {
     return () => window.removeEventListener('focus', onFocus);
   }, []);
 
-  // Calculate daily completion rate dynamically based on grid state
-  const dailyCompletionRate = Array.from({ length: 30 }).map((_, i) => {
-    let completedCount = 0
-    let scheduledCount = 0
-    const dateForDay = new Date();
-    dateForDay.setDate(dateForDay.getDate() - (30 - (i + 1)));
-    const dayOfWeek = dateForDay.getDay();
+  // Completion Trend Data (Mapped to current calendar month)
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-    gridData.forEach(habit => {
-      if (!habit.frequency || habit.frequency.includes(dayOfWeek)) {
-        scheduledCount++;
-        if (habit.days[i]?.completed) completedCount++;
-      }
-    })
-    const percentage = scheduledCount ? Math.round((completedCount / scheduledCount) * 100) : 0
-    return { day: i + 1, rate: percentage }
-  })
+  const completionRateData = Array.from({ length: daysInMonth }).map((_, i) => {
+    const actualCalendarDay = i + 1;
+    const dateForThisDay = new Date(currentYear, currentMonth, actualCalendarDay);
+    
+    const today = new Date();
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const targetMidnight = new Date(currentYear, currentMonth, actualCalendarDay);
+    
+    const diffTime = targetMidnight.getTime() - todayMidnight.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+    
+    let rate = null; // Out of rolling window or in future
+    
+    if (diffDays <= 0 && diffDays >= -29) {
+      const relativeDayNum = 30 + diffDays;
+      let completed = 0;
+      let totalScheduled = 0;
+      const dayOfWeek = dateForThisDay.getDay();
+
+      gridData.forEach(habit => {
+        const isScheduled = habit.frequency ? habit.frequency.includes(dayOfWeek) : true;
+        if (isScheduled) {
+          totalScheduled++;
+          if (habit.days.find(d => d.day === relativeDayNum)?.completed) completed++;
+        }
+      });
+      rate = totalScheduled === 0 ? 0 : Math.round((completed / totalScheduled) * 100);
+    }
+
+    return {
+      day: actualCalendarDay,
+      rate: rate
+    };
+  });
 
   const filteredCompletionRate = selectedWeek === 'all'
-    ? dailyCompletionRate
-    : dailyCompletionRate.filter(d => {
+    ? completionRateData
+    : completionRateData.filter(d => {
       if (selectedWeek === 1) return d.day >= 1 && d.day <= 7;
       if (selectedWeek === 2) return d.day >= 8 && d.day <= 14;
       if (selectedWeek === 3) return d.day >= 15 && d.day <= 21;
@@ -127,33 +149,9 @@ export default function BrutalistDashboard() {
     <>
       {loading && <CanvasLoader onComplete={() => setLoading(false)} />}
 
-      <div className={`max-w-[1000px] mx-auto px-6 pt-8 pb-24 space-y-8 ${(loading || authLoading) ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100 transition-opacity duration-700'}`}>
+      <div className={`max-w-[1000px] mx-auto px-6 pt-8 pb-24 space-y-8 ${(loading || authLoading || !isMounted) ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100 transition-opacity duration-700'}`}>
       
-        {/* Initialize Journey Banner */}
-        {isAuthenticated && !hasStartedJourney && !loading && (
-          <div className="bg-zinc-950 border border-zinc-800 p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden animate-in fade-in slide-in-from-top-4">
-            <div className="absolute -top-12 -left-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-            <div className="relative z-10 flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <Rocket className="w-6 h-6 text-white" />
-                <h2 className="text-xl font-black uppercase tracking-tighter text-white">Initialize Your Journey</h2>
-              </div>
-              <p className="text-zinc-400 text-sm leading-relaxed max-w-xl">
-                Welcome to HabytFLow. You are currently viewing simulated preview data. To begin tracking your real activity, initialize your profile. This will erase the preview data and prepare a blank slate.
-              </p>
-            </div>
-            <button 
-              onClick={() => {
-                initializeJourney()
-                router.push('/habits')
-              }}
-              className="w-full md:w-auto px-8 bg-green-500 text-black py-4 font-black uppercase tracking-widest text-sm hover:bg-green-400 transition-colors flex items-center justify-center gap-2 group relative z-10 whitespace-nowrap"
-            >
-              Start Tracking
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        )}
+
 
 
 
@@ -177,13 +175,18 @@ export default function BrutalistDashboard() {
           {gridData.filter(habit => habit.frequency ? habit.frequency.includes(new Date().getDay()) : true).map(habit => {
             const isCompleted = todayHabits.includes(habit.id);
 
-            // Assign brutalist colors based on ID
-            let colorClass = "";
-            if (habit.id === 1) colorClass = "bg-[#ef4444] text-black border-[#ef4444]";
-            else if (habit.id === 2) colorClass = "bg-[#3b82f6] text-black border-[#3b82f6]";
-            else if (habit.id === 3) colorClass = "bg-[#eab308] text-black border-[#eab308]";
-            else if (habit.id === 4) colorClass = "bg-[#a855f7] text-black border-[#a855f7]";
-            else colorClass = "bg-[#22c55e] text-black border-[#22c55e]";
+            const BRUTALIST_COLORS = [
+              "bg-[#ef4444] text-black border-[#ef4444]", // Red
+              "bg-[#3b82f6] text-black border-[#3b82f6]", // Blue
+              "bg-[#eab308] text-black border-[#eab308]", // Yellow
+              "bg-[#a855f7] text-black border-[#a855f7]", // Purple
+              "bg-[#06b6d4] text-black border-[#06b6d4]", // Cyan
+              "bg-[#ec4899] text-black border-[#ec4899]", // Pink
+              "bg-[#f97316] text-black border-[#f97316]", // Orange
+              "bg-[#84cc16] text-black border-[#84cc16]", // Lime
+              "bg-[#10b981] text-black border-[#10b981]", // Emerald
+            ];
+            let colorClass = BRUTALIST_COLORS[habit.id % BRUTALIST_COLORS.length];
 
             if (isCompleted) {
               colorClass = "bg-zinc-900 text-zinc-600 border-zinc-800 opacity-50 grayscale";
@@ -200,13 +203,29 @@ export default function BrutalistDashboard() {
               >
                 <div className="flex justify-between items-start w-full">
                   <span className="text-[10px] font-black uppercase tracking-widest opacity-80">{habit.category}</span>
-                  {habit.time && (
-                    <span className="text-[10px] font-black text-white tracking-widest bg-black/30 px-1.5 py-0.5 rounded-[1px] shadow-sm">
-                      {formatTime(habit.time, timeFormat)}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <AnimatePresence>
+                      {isCompleted && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        >
+                          <Check size={16} strokeWidth={4} className="text-zinc-500" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    {habit.time && (
+                      <span className="text-[10px] font-black text-white tracking-widest bg-black/30 px-1.5 py-0.5 rounded-[1px] shadow-sm">
+                        {formatTime(habit.time, timeFormat)}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className="text-base md:text-lg font-black uppercase leading-tight mt-2">{habit.name}</span>
+                <span className={`text-base md:text-lg font-black uppercase leading-tight mt-2 ${isCompleted ? 'line-through opacity-70' : ''}`}>
+                  {habit.name}
+                </span>
               </button>
             )
           })}
@@ -219,38 +238,15 @@ export default function BrutalistDashboard() {
         <ActivityMetricsTracker />
 
         {/* 30-Day Grid Trend Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gridData.length === 0 && (
-            <div className="col-span-full border border-zinc-800 bg-zinc-950 p-8 flex flex-col items-center justify-center text-center">
+        <div className="w-full">
+          {gridData.length === 0 ? (
+            <div className="border border-zinc-800 bg-zinc-950 p-8 flex flex-col items-center justify-center text-center">
               <h3 className="text-white text-lg font-bold uppercase tracking-widest mb-2">No Tracking Data</h3>
               <p className="text-zinc-500 text-sm mb-6">Add habits to see your 30-day trends.</p>
             </div>
+          ) : (
+            <UnifiedHabitCalendar gridData={gridData} />
           )}
-          {gridData.map(habit => {
-            // Assign brutalist colors based on ID
-            let colorClass = "";
-            if (habit.id === 1) colorClass = "bg-[#ef4444]";
-            else if (habit.id === 2) colorClass = "bg-[#3b82f6]";
-            else if (habit.id === 3) colorClass = "bg-[#eab308]";
-            else if (habit.id === 4) colorClass = "bg-[#a855f7]";
-            else colorClass = "bg-[#22c55e]";
-
-            const completedDays = habit.days.filter(d => d.completed).map(d => d.day);
-
-            return (
-              <HabitGridTrend
-                key={habit.id}
-                habitId={habit.id}
-                habitName={habit.name}
-                habitCategory={habit.category}
-                habitTime={habit.time ? formatTime(habit.time, timeFormat) : null}
-                habitColor={colorClass}
-                completedDays={completedDays}
-                totalDays={30}
-                onToggleDay={toggleDay}
-              />
-            )
-          })}
         </div>
 
         {/* Charts Row */}
@@ -280,11 +276,6 @@ export default function BrutalistDashboard() {
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 9, fill: '#52525b' }}
-                    tickFormatter={(val) => {
-                      const d = new Date();
-                      d.setDate(d.getDate() - (30 - Number(val)));
-                      return d.getDate().toString();
-                    }}
                     dy={10}
                     interval={0}
                   />
@@ -303,12 +294,10 @@ export default function BrutalistDashboard() {
                     labelStyle={{ color: '#000000', marginBottom: '4px' }}
                     formatter={(value: any) => [`${value}% completed`, 'Trend']}
                     labelFormatter={(label) => {
-                      const d = new Date();
-                      d.setDate(d.getDate() - (30 - Number(label)));
-                      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                      return new Date(currentYear, currentMonth, Number(label)).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                     }}
                   />
-                  <ReferenceLine x={30} stroke="#52525b" strokeDasharray="3 3" />
+                  <ReferenceLine x={new Date().getDate()} stroke="#52525b" strokeDasharray="3 3" />
                   <Line
                     type="monotone"
                     dataKey="rate"
@@ -317,6 +306,7 @@ export default function BrutalistDashboard() {
                     dot={{ r: 2, fill: '#000', stroke: '#fff', strokeWidth: 1.5 }}
                     activeDot={{ r: 4, fill: '#fff' }}
                     isAnimationActive={false}
+                    connectNulls={true}
                   />
                 </LineChart>
               </DynamicResponsiveContainer>

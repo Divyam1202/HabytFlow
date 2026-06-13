@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     await UserState.findOneAndUpdate(
       { userId: session.user.id },
       { stateData },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     )
 
     return NextResponse.json({ success: true })

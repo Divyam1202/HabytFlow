@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import webpush from 'web-push';
-import admin from 'firebase-admin';
+import { getApps, initializeApp, cert } from 'firebase-admin/app';
+import { getMessaging } from 'firebase-admin/messaging';
 
 // Initialize Web Push
 if (process.env.VAPID_SUBJECT && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
@@ -12,9 +13,9 @@ if (process.env.VAPID_SUBJECT && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && pro
 }
 
 // Initialize Firebase Admin (for native)
-if (!admin.apps.length && process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
+if (!getApps().length && process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
+  initializeApp({
+    credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
     
     // In a real application, you would fetch these from your database based on userId
     // const user = await db.user.findUnique({ where: { id: userId } });
-    const user = { webSubscriptions: [], fcmTokens: [] }; 
+    const user = { webSubscriptions: [] as any[], fcmTokens: [] as string[] }; 
 
     const promises: Promise<any>[] = [];
 
@@ -44,13 +45,13 @@ export async function POST(req: Request) {
     }
 
     // 2. Dispatch to Native Capacitor Targets via FCM
-    if (user.fcmTokens && user.fcmTokens.length > 0 && admin.apps.length > 0) {
+    if (user.fcmTokens && user.fcmTokens.length > 0 && getApps().length > 0) {
       const message = {
         notification: { title, body },
         data: { url: url || '/dashboard' },
         tokens: user.fcmTokens
       };
-      promises.push(admin.messaging().sendEachForMulticast(message).catch(e => {
+      promises.push(getMessaging().sendEachForMulticast(message).catch(e => {
         console.error('FCM push failed:', e);
       }));
     }

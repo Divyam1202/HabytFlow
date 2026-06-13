@@ -195,7 +195,7 @@ export default function BrutalistDashboard() {
                   if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
                   toggleTodayHabit(habit.id);
                 }}
-                className={`p-4 flex flex-col justify-between min-h-[100px] border rounded-[1px] transition-all duration-300 transform active:scale-95 text-left ${colorClass}`}
+                className={`p-3 md:p-4 flex flex-col justify-between min-h-[80px] md:min-h-[100px] border rounded-[1px] transition-all duration-300 transform active:scale-95 text-left ${colorClass}`}
               >
                 <div className="flex justify-between items-start w-full">
                   <span className="text-[10px] font-black uppercase tracking-widest opacity-80">{habit.category}</span>
@@ -205,7 +205,7 @@ export default function BrutalistDashboard() {
                     </span>
                   )}
                 </div>
-                <span className="text-lg font-black uppercase leading-tight mt-2">{habit.name}</span>
+                <span className="text-base md:text-lg font-black uppercase leading-tight mt-2">{habit.name}</span>
               </button>
             )
           })}

@@ -157,9 +157,10 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
           setGridData(SEED_GRID_DATA)
           setHeatmapData(SEED_HEATMAP)
         } else {
-          // Unauthenticated guest -> show preview data
+          // Unauthenticated guest -> show preview data with some habits already ticked for demonstration
           setGridData(SEED_GRID_DATA)
           setHeatmapData(SEED_HEATMAP)
+          setTodayHabits([1, 3]) // Pre-tick some habits to show the green "Completed" state
         }
       }
       setMounted(true)

@@ -9,6 +9,7 @@ import { ActivityTracker } from '@/components/activity-tracker'
 import { HabitProvider } from '@/contexts/habit-context'
 import { AuthProvider } from '@/contexts/auth-context'
 import { GatekeeperModal } from '@/components/ui/gatekeeper-modal'
+import { Toaster } from 'sonner'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -59,6 +60,7 @@ export default function RootLayout({
                     {children}
                   </main>
                   <GatekeeperModal />
+                  <Toaster theme="dark" position="bottom-right" />
                 </div>
               </TooltipProvider>
             </HabitProvider>

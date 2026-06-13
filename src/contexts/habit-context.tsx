@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/auth-context'
+import { toast } from 'sonner'
 
 export type NutritionState = {
   hydration: number; hydrationGoal: number;
@@ -299,11 +300,34 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
 
   const addHabit = (habit: Omit<HabitDef, 'id'>) => {
     requireAuth(() => {
-      setGridData(prev => [...prev, {
+      const newHabit = {
         ...habit,
         id: Date.now(),
         days: Array.from({ length: 30 }).map((_, i) => ({ day: i + 1, completed: false }))
-      }])
+      };
+
+      // 1. Optimistic local update
+      setGridData(prev => [...prev, newHabit])
+
+      // 2. Immediate Remote Sync (Bypass debounce) for visual confidence
+      const stateToSave = {
+        currentSystemDate, todayHabits, todayNutrition, todayActivity, 
+        gridData: [...gridData, newHabit], 
+        heatmapData
+      };
+
+      toast.promise(
+        fetch('/api/user-state', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stateData: JSON.stringify(stateToSave) })
+        }),
+        {
+          loading: 'Syncing habit securely...',
+          success: 'Habit saved and synced across all devices!',
+          error: 'Warning: Failed to sync to cloud.'
+        }
+      );
 
       fetch('/api/telemetry', {
         method: 'POST',

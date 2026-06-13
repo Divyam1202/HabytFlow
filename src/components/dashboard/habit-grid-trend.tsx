@@ -74,6 +74,11 @@ export const HabitGridTrend = ({
           const isToday = day === todayDay;
           const isAnimating = animatingCells[day];
 
+          // Calculate actual calendar date for this square
+          const dateForDay = new Date();
+          dateForDay.setDate(dateForDay.getDate() - (totalDays - day));
+          const actualDayOfMonth = dateForDay.getDate();
+
           return (
             <button
               key={day}
@@ -87,9 +92,9 @@ export const HabitGridTrend = ({
                 }
                 ${isToday && !isDone && !isAnimating ? 'border-zinc-500' : ''}
               `}
-              title={`Day ${day} ${isDone ? '(Completed)' : '(Unchecked)'}`}
+              title={`${dateForDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} ${isDone ? '(Completed)' : '(Unchecked)'}`}
             >
-              {isDone && !isAnimating ? '' : day}
+              {isDone && !isAnimating ? '' : actualDayOfMonth}
               
               {/* Subtle indicator dot exclusively tracking "Today" if it isn't completed yet */}
               {isToday && !isDone && !isAnimating && (

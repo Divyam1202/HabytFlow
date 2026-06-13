@@ -279,6 +279,11 @@ export default function BrutalistDashboard() {
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 9, fill: '#52525b' }}
+                    tickFormatter={(val) => {
+                      const d = new Date();
+                      d.setDate(d.getDate() - (30 - Number(val)));
+                      return d.getDate().toString();
+                    }}
                     dy={10}
                     interval={0}
                   />
@@ -302,9 +307,7 @@ export default function BrutalistDashboard() {
                       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                     }}
                   />
-                  {(selectedWeek === 'all' || selectedWeek === 4) && (
-                    <ReferenceLine x={30} stroke="#52525b" strokeDasharray="3 3" />
-                  )}
+                  <ReferenceLine x={30} stroke="#52525b" strokeDasharray="3 3" />
                   <Line
                     type="monotone"
                     dataKey="rate"
@@ -339,16 +342,23 @@ export default function BrutalistDashboard() {
                 <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
               </div>
               <div className="grid grid-rows-7 grid-flow-col gap-[2px]">
-                {heatmapData.map((day) => (
-                  <div
-                    key={day.id}
-                    className={`w-2.5 h-2.5 rounded-[1px] transition-all duration-150 ease-out hover:scale-125 hover:bg-white hover:z-10 relative group ${getHeatmapColor(day.count)}`}
-                  >
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-white text-black text-[10px] font-bold px-2 py-1 whitespace-nowrap z-50 pointer-events-none shadow-lg">
-                      Day {day.id + 1}: {day.count} Habits
+                {heatmapData.map((day, index) => {
+                  const daysAgo = heatmapData.length - 1 - index;
+                  const d = new Date();
+                  d.setDate(d.getDate() - daysAgo);
+                  const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                  return (
+                    <div
+                      key={day.id}
+                      className={`w-2.5 h-2.5 rounded-[1px] transition-all duration-150 ease-out hover:scale-125 hover:bg-white hover:z-10 relative group ${getHeatmapColor(day.count)}`}
+                    >
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-white text-black text-[10px] font-bold px-2 py-1 whitespace-nowrap z-50 pointer-events-none shadow-lg">
+                        {dateStr}: {day.count} Habits
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

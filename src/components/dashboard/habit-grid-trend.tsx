@@ -33,6 +33,13 @@ export const HabitGridTrend = ({
   // Actually, our old grid data was just 1-30. Let's assume day 30 is today.
   const todayDay = 30;
 
+  const getRangeString = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - (totalDays - 1));
+    return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+  };
+
   const [animatingCells, setAnimatingCells] = useState<Record<number, boolean>>({});
 
   const handleToggle = (day: number) => {
@@ -56,11 +63,14 @@ export const HabitGridTrend = ({
         </div>
         <div className="flex flex-col items-end">
           {habitTime && (
-            <span className="text-[10px] font-bold text-white tracking-widest bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded-[1px] mb-1">
+            <span className="text-[10px] font-bold text-white tracking-widest bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded-[1px] mb-2">
               {habitTime}
             </span>
           )}
-          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+          <span className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mb-0.5 text-right leading-tight">
+            {getRangeString()}
+          </span>
+          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest text-right leading-tight">
             {completedDays.length}/{totalDays} Days
           </span>
         </div>
@@ -84,7 +94,7 @@ export const HabitGridTrend = ({
               key={day}
               onClick={() => handleToggle(day)}
               className={`
-                relative aspect-square rounded-[1px] flex items-center justify-center text-[10px] font-bold transition-all duration-200 select-none cursor-pointer
+                relative h-7 w-full rounded-[1px] flex items-center justify-center text-[10px] font-bold transition-all duration-200 select-none cursor-pointer
                 ${isAnimating ? 'scale-125 z-10 shadow-[0_0_15px_rgba(255,255,255,0.5)] bg-white text-black rotate-6' : ''}
                 ${!isAnimating && isDone 
                   ? `${habitColor} text-black` // Done: Displays Habit Color

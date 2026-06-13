@@ -271,7 +271,8 @@ export default function BrutalistDashboard() {
                 ))}
               </div>
             </div>
-            <div className="h-40 w-full -ml-2">
+            <div className="w-full overflow-x-auto pb-2">
+              <div className="h-40 min-w-[600px] w-full -ml-2">
               <DynamicResponsiveContainer width="100%" height="100%">
                 <LineChart data={filteredCompletionRate} margin={{ top: 5, right: 15, left: -15, bottom: 0 }}>
                   <XAxis
@@ -319,6 +320,7 @@ export default function BrutalistDashboard() {
                   />
                 </LineChart>
               </DynamicResponsiveContainer>
+              </div>
             </div>
           </div>
         </div>

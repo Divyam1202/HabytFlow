@@ -54,30 +54,32 @@ export const HabitGridTrend = ({
   };
 
   return (
-    <div className="w-full bg-black border border-zinc-800 rounded-[1px] p-5 font-sans hover:border-zinc-600 transition-colors duration-300">
+    <div className="border border-zinc-800 bg-black p-3 min-[400px]:p-4 md:p-6 flex flex-col justify-between relative group transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:border-zinc-700 w-full rounded-[1px]">
       {/* Header Info Area */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between mb-4 md:mb-6">
         <div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{habitCategory}</span>
-          <h3 className="text-white font-black uppercase tracking-wider text-sm mt-1">{habitName}</h3>
+          <h3 className="text-[10px] min-[400px]:text-[11px] md:text-sm font-bold uppercase tracking-wider text-white flex items-center gap-1.5 md:gap-2 leading-tight">
+            {habitName}
+          </h3>
+          <p className="text-[9px] min-[400px]:text-[10px] md:text-xs text-zinc-500 mt-0.5 md:mt-1">{habitCategory}</p>
         </div>
         <div className="flex flex-col items-end">
           {habitTime && (
-            <span className="text-[10px] font-bold text-white tracking-widest bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded-[1px] mb-2">
+            <span className="text-[9px] min-[400px]:text-[10px] md:text-xs font-bold text-white tracking-widest bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded-[1px] mb-1 md:mb-2">
               {habitTime}
             </span>
           )}
-          <span className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mb-0.5 text-right leading-tight">
+          <span className="text-[8px] min-[400px]:text-[9px] md:text-xs text-zinc-600 font-bold uppercase tracking-widest mb-0.5 text-right leading-tight">
             {getRangeString()}
           </span>
-          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest text-right leading-tight">
+          <span className="text-[9px] min-[400px]:text-[10px] md:text-xs text-zinc-400 font-bold uppercase tracking-widest text-right leading-tight">
             {completedDays.length}/{totalDays} Days
           </span>
         </div>
       </div>
 
       {/* 30-Day Trend Matrix Grid */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1 min-[400px]:gap-1.5 md:gap-2 mb-4 md:mb-6">
         {daysArray.map((day) => {
           // Check if this iteration step matches a completed logged token
           const isDone = completedDays.includes(day);
@@ -94,7 +96,7 @@ export const HabitGridTrend = ({
               key={day}
               onClick={() => handleToggle(day)}
               className={`
-                relative h-7 w-full rounded-[1px] flex items-center justify-center text-[10px] font-bold transition-all duration-200 select-none cursor-pointer
+                relative h-6 min-[400px]:h-7 md:h-8 w-full rounded-[1px] flex items-center justify-center text-[9px] min-[400px]:text-[10px] md:text-xs font-bold transition-all duration-200 select-none cursor-pointer
                 ${isAnimating ? 'scale-125 z-10 shadow-[0_0_15px_rgba(255,255,255,0.5)] bg-white text-black rotate-6' : ''}
                 ${!isAnimating && isDone 
                   ? `${habitColor} text-black` // Done: Displays Habit Color
@@ -116,13 +118,13 @@ export const HabitGridTrend = ({
       </div>
       
       {/* Visual System Footer Legend */}
-      <div className="flex items-center gap-4 mt-6 pt-4 border-t border-zinc-900 text-[9px] font-bold uppercase tracking-widest text-zinc-600">
-        <div className="flex items-center gap-2">
-          <div className="h-2.5 w-2.5 rounded-[1px] border border-zinc-800" />
+      <div className="flex items-center gap-3 min-[400px]:gap-4 mt-auto pt-3 min-[400px]:pt-4 border-t border-zinc-900 text-[8px] min-[400px]:text-[9px] md:text-xs font-bold uppercase tracking-widest text-zinc-600">
+        <div className="flex items-center gap-1.5 md:gap-2">
+          <div className="h-2 w-2 min-[400px]:h-2.5 min-[400px]:w-2.5 md:h-3 md:w-3 rounded-[1px] border border-zinc-800" />
           <span>Missed</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className={`h-2.5 w-2.5 rounded-[1px] ${habitColor}`} />
+        <div className="flex items-center gap-1.5 md:gap-2">
+          <div className={`h-2 w-2 min-[400px]:h-2.5 min-[400px]:w-2.5 md:h-3 md:w-3 rounded-[1px] ${habitColor}`} />
           <span>Completed</span>
         </div>
       </div>

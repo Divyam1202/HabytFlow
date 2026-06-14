@@ -168,6 +168,34 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     };
 
     loadState();
+
+    // Background sync when returning to the tab (Cross-platform updates)
+    const onFocus = async () => {
+      if (isAuthenticated) {
+        try {
+          const res = await fetch('/api/user-state', { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.stateData) {
+              const parsed = JSON.parse(data.stateData);
+              if (parsed) {
+                setCurrentSystemDate(parsed.currentSystemDate || getLocalYYYYMMDD())
+                setTodayHabits(parsed.todayHabits || [])
+                setTodayNutrition(parsed.todayNutrition || INITIAL_NUTRITION)
+                setTodayActivity(parsed.todayActivity || INITIAL_ACTIVITY)
+                setGridData(parsed.gridData || SEED_GRID_DATA)
+                setHeatmapData(parsed.heatmapData || SEED_HEATMAP)
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Failed to sync on focus", e);
+        }
+      }
+    };
+
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, [user?.id, isLoading, isAuthenticated])
 
   // Persistence & Rollover Check
@@ -185,6 +213,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         fetch('/api/user-state', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
           body: JSON.stringify({ stateData: stateString })
         }).catch(e => console.error("Failed to sync remote state", e));
       }, 1500); // 1.5s debounce
